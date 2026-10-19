@@ -15,7 +15,7 @@ que se conservan como registro histórico.
 | Linux móvil (Phosh, Plasma Mobile) | Controles táctiles y escala de interfaz incluidos; sin verificar en un dispositivo |
 | Linux ARM64 | Paquete generado y probado por CI (runner ARM64); sin verificar en hardware físico |
 | macOS arm64 | Solo el servidor dedicado, experimental (el cliente necesita OpenGL ES 3) |
-| Windows | **No disponible**: la red usa sockets POSIX y el cliente OpenGL ES 3 |
+| Windows x86_64 / ARM64 | Paquete con ANGLE (Direct3D 11) generado y probado por CI en Windows; también verificado con compilación cruzada MinGW y Wine. Sin probar en hardware físico |
 | Android / iOS | **No disponibles**: solo hay plantillas de manifiesto; falta el proyecto de compilación |
 
 ## Verificación realizada

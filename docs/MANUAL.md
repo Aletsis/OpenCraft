@@ -9,7 +9,7 @@ aún no están disponibles se indican como tales; el detalle está en [ESTADO_RC
 
 | | Mínimo verificado |
 | :--- | :--- |
-| Sistema | Linux x86_64 (verificado en Arch Linux). ARM64 compila con el mismo CMake, sin verificar en hardware |
+| Sistema | Linux x86_64 (verificado en Arch Linux) y ARM64; Windows 10/11 x86_64 y ARM64 |
 | Gráficos | OpenGL ES 3.0 (Mesa en Intel/AMD, o controladores con soporte GLES 3) |
 | Bibliotecas | SDL3 y GLESv2 para el cliente; el servidor solo necesita la biblioteca estándar |
 | Compilador | C++20 con `<format>`: verificado con GCC 16.2 |
@@ -68,11 +68,13 @@ Para volver a un mundo, selecciónelo en la lista y pulse *Jugar mundo seleccion
 | `--create <nombre>` | Crear un mundo y entrar en él (`--seed <s>`, `--creative`) |
 | `--list` | Listar los mundos guardados y salir |
 | `--width`, `--height`, `--fullscreen` | Tamaño de la ventana |
+| `--gl auto\|native\|angle` | OpenGL ES del controlador o ANGLE (por defecto: ANGLE en Windows, nativo en Linux) |
 | `--autosave <segundos>` | Intervalo de autoguardado (por defecto 30) |
 | `--script <archivo>` | Guion de pruebas automáticas (ver §8) |
 | `--version`, `--help` | Versión y ayuda |
 
-Variables de entorno: `OPENCRAFT_ASSETS_DIR` (carpeta de recursos si no está junto al ejecutable),
+Variables de entorno: `OPENCRAFT_GL` (igual que `--gl`), `OPENCRAFT_ANGLE_DIR` (carpeta con `libEGL` y
+`libGLESv2` de ANGLE), `OPENCRAFT_ASSETS_DIR` (carpeta de recursos si no está junto al ejecutable),
 `XDG_DATA_HOME` y `XDG_CONFIG_HOME` (ubicación de datos y opciones).
 
 ## 4. Cómo se juega
@@ -135,6 +137,8 @@ guardan en `~/.config/opencraft/settings.cfg`.
 | Copias de seguridad | `~/.local/share/opencraft/backups/<id>_backup_<fecha>/` |
 | Capturas (F2) | `~/.local/share/opencraft/screenshots/` |
 | Opciones | `~/.config/opencraft/settings.cfg` |
+
+En Windows todo se guarda en `%APPDATA%\OpenCraft\` (`worlds`, `backups`, `screenshots` y `config`).
 
 - El juego guarda cada 30 segundos, al pausar en segundo plano y al salir con *Guardar y salir al título*.
   Cada guardado es una transacción con journal: los archivos se escriben y sincronizan (`fsync`) antes de

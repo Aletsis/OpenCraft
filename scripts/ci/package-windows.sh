@@ -8,7 +8,8 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 BUILD="$(cd "$1" && pwd)"
-OUT="$2"
+mkdir -p "$2"
+OUT="$(cd "$2" && pwd)"
 ARCH="$3"
 : "${MINGW_PREFIX:?Ejecute este script dentro de un shell MSYS2 (UCRT64 o CLANGARM64)}"
 
