@@ -94,8 +94,7 @@ inline SocketHandle openUdpSocket() noexcept {
 #endif
     BOOL reportReset = FALSE;
     DWORD bytesReturned = 0;
-    ::WSAIoctl(s, SIO_UDP_CONNRESET, &reportReset, sizeof(reportReset), nullptr, 0, &bytesReturned, nullptr,
-               nullptr);
+    ::WSAIoctl(s, SIO_UDP_CONNRESET, &reportReset, sizeof(reportReset), nullptr, 0, &bytesReturned, nullptr, nullptr);
 #endif
     setNonBlocking(s);
     return s;

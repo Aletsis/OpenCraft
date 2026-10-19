@@ -8,7 +8,12 @@ namespace OpenCraft::GL {
 
 bool load(ProcLoader loader, const char** missing) {
     if (!loader) return false;
-#define OPENCRAFT_GL_LOAD(type, name)                                                                                  oc_##name = reinterpret_cast<type>(loader(#name));                                                                 if (!oc_##name) {                                                                                                      if (missing) *missing = #name;                                                                                     return false;                                                                                                  }
+#define OPENCRAFT_GL_LOAD(type, name)                                                                                  \
+    oc_##name = reinterpret_cast<type>(loader(#name));                                                                 \
+    if (!oc_##name) {                                                                                                  \
+        if (missing) *missing = #name;                                                                                 \
+        return false;                                                                                                  \
+    }
     OPENCRAFT_GL_FUNCTIONS(OPENCRAFT_GL_LOAD)
 #undef OPENCRAFT_GL_LOAD
     return true;
