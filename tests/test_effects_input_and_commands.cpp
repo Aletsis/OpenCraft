@@ -222,6 +222,14 @@ static void testCommands() {
     assert(run("/gamerule keepInventory true").success);
     assert(run("/gamerule keepInventory").success);
     assert(!run("/gamerule noExiste true").success);
+    // doMobSpawning=false: el generador natural no crea criaturas aunque sea de noche
+    assert(run("/gamerule doMobSpawning false").success);
+    run("/kill @e");
+    s.getClock().setTickCount(14000);
+    size_t mobsBefore = s.getMobs().size();
+    for (int t = 0; t < 200; ++t) s.tick();
+    assert(s.getMobs().size() <= mobsBefore && "Con doMobSpawning=false no aparecen criaturas");
+    assert(run("/gamerule doMobSpawning true").success);
     assert(run("/effect give @s opencraft:speed 30 1").success);
     assert(run("/effect clear @s").success);
     assert(run("/xp add @s 50").success);

@@ -1,4 +1,5 @@
 #include "sim/MobEntity.hpp"
+#include "core/DeterministicRandom.hpp"
 #include "world/IdAliases.hpp"
 #include "world/World.hpp"
 #include "world/BlockRegistry.hpp"
@@ -717,10 +718,10 @@ void MobEntity::wander(float speedScale) {
     bool stuck = aiTicks % 20 == 0 && std::abs(velocity.x) + std::abs(velocity.z) < 0.05f && aiTicks > 20;
     if (toTarget.length() < 1.0f || aiTicks % 100 == 0 || stuck || (wanderTarget.x == 0.0f && wanderTarget.z == 0.0f)) {
         if (toTarget.length() < 1.0f || stuck) {
-            wanderWaitTicks = 20 + static_cast<uint32_t>(rand() % 60); // pausa al llegar o atascarse
+            wanderWaitTicks = 20 + DeterministicRandom::hashBelow(60, id, aiTicks, 1); // pausa al llegar o atascarse
         }
-        float rad = Math::radians(static_cast<float>(rand() % 360));
-        float dist = 3.0f + static_cast<float>(rand() % 6);
+        float rad = Math::radians(static_cast<float>(DeterministicRandom::hashBelow(360, id, aiTicks, 2)));
+        float dist = 3.0f + static_cast<float>(DeterministicRandom::hashBelow(6, id, aiTicks, 3));
         wanderTarget = position + Math::Vec3(std::cos(rad) * dist, 0.0f, std::sin(rad) * dist);
         toTarget = wanderTarget - position;
         toTarget.y = 0.0f;

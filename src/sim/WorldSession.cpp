@@ -1,4 +1,5 @@
 #include "sim/WorldSession.hpp"
+#include "core/DeterministicRandom.hpp"
 #include "world/HopperBlockEntity.hpp"
 #include "world/DispenserBlockEntity.hpp"
 #include "world/DropperBlockEntity.hpp"
@@ -54,6 +55,7 @@ WorldSession::WorldSession() {
 
 void WorldSession::init(int renderDistance, uint64_t seed) {
     m_world.init(renderDistance, seed);
+    m_mobSpawner.setSeed(seed);
     m_clock.reset();
     m_craftingGrid.assign(4, ItemStack());
     m_craftingOutput.clear();
@@ -3031,7 +3033,8 @@ void WorldSession::tick() {
     std::erase_if(m_experienceOrbs, [](const ExperienceOrbEntity& o) { return o.isDead; });
 
     // 13. Generación y Desaparición Periódica de Criaturas (MobSpawner)
-    m_mobSpawner.tick(m_world, m_player, m_mobs, m_nextEntityId, m_difficulty, sunFactor);
+    m_mobSpawner.tick(m_world, m_player, m_mobs, m_nextEntityId, m_difficulty, sunFactor,
+                      m_commandEngine.getGameRules().doMobSpawning);
 
     // 14. Despachar eventos confirmados
     dispatchEvents();
@@ -3078,7 +3081,10 @@ void WorldSession::explode(const Math::Vec3& pos, float radius, bool causeBlockG
                                 if (props.legacyId != BlockID::Bedrock && props.hardness >= 0.0f) {
                                     m_world.setBlockState(x, y, z, AIR_BLOCK_STATE);
                                     blocksDestroyed++;
-                                    if (rand() % 100 < 30) {
+                                    if (DeterministicRandom::hashBelow(
+                                            100,
+                                            static_cast<uint32_t>(x) * 73856093u ^ static_cast<uint32_t>(z) * 19349663u,
+                                            static_cast<uint64_t>(y), m_clock.getTickCount()) < 30) {
                                         ItemId dropId = ItemRegistry::global().getItemForBlock(st);
                                         if (dropId != EMPTY_ITEM_ID) {
                                             spawnDroppedItem(ItemStack(dropId, 1), bCenter,

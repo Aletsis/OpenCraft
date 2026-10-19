@@ -37,7 +37,7 @@ int main() {
         (void)ok;
 
         // Simular ticks de red en loopback
-        for (int i = 0; i < 5; ++i) {
+        for (int i = 0; i < 50; ++i) { // margen para sistemas con loopback más lento
             simTimeMs += 10;
             server.update(serverSession, simTimeMs);
             clientA.update(serverSession, simTimeMs);
@@ -56,7 +56,7 @@ int main() {
 
         // Desconexión limpia
         clientA.disconnect();
-        for (int i = 0; i < 5; ++i) {
+        for (int i = 0; i < 50; ++i) { // margen para sistemas con loopback más lento
             simTimeMs += 10;
             server.update(serverSession, simTimeMs);
             std::this_thread::sleep_for(std::chrono::milliseconds(2));
@@ -79,13 +79,18 @@ int main() {
         serializeHandshake(w, 1, "OldBob", 99); // Versión incompatible
         sendto(sock, w.data(), w.size(), 0, reinterpret_cast<sockaddr*>(&saddr), sizeof(saddr));
 
-        simTimeMs += 10;
-        server.update(serverSession, simTimeMs);
-
-        // Recibir respuesta de rechazo
+        // Recibir respuesta de rechazo. La entrega por loopback no es instantánea en todos los sistemas
+        // (macOS): se reintenta durante un máximo de 2 s en lugar de bloquear indefinidamente.
         uint8_t recvBuf[512];
         socklen_t slen = sizeof(saddr);
-        ssize_t n = recvfrom(sock, recvBuf, sizeof(recvBuf), 0, reinterpret_cast<sockaddr*>(&saddr), &slen);
+        ssize_t n = -1;
+        for (int attempt = 0; attempt < 1000 && n <= 0; ++attempt) {
+            simTimeMs += 10;
+            server.update(serverSession, simTimeMs);
+            std::this_thread::sleep_for(std::chrono::milliseconds(2));
+            slen = sizeof(saddr);
+            n = recvfrom(sock, recvBuf, sizeof(recvBuf), MSG_DONTWAIT, reinterpret_cast<sockaddr*>(&saddr), &slen);
+        }
         assert(n > 0 && "El servidor debe responder al cliente incompatible");
 
         ByteReader r(recvBuf, static_cast<size_t>(n));
@@ -114,7 +119,7 @@ int main() {
         NetworkClient intruder;
         intruder.connect("127.0.0.1", testPort, "Intruder");
 
-        for (int i = 0; i < 5; ++i) {
+        for (int i = 0; i < 50; ++i) { // margen para sistemas con loopback más lento
             simTimeMs += 10;
             server.update(serverSession, simTimeMs);
             intruder.update(serverSession, simTimeMs);
@@ -129,7 +134,7 @@ int main() {
         NetworkClient allowed;
         allowed.connect("127.0.0.1", testPort, "WhitelistedPlayer");
 
-        for (int i = 0; i < 5; ++i) {
+        for (int i = 0; i < 50; ++i) { // margen para sistemas con loopback más lento
             simTimeMs += 10;
             server.update(serverSession, simTimeMs);
             allowed.update(serverSession, simTimeMs);
@@ -142,7 +147,7 @@ int main() {
         assert(kicked && "Kick debe reportar éxito");
         (void)kicked;
 
-        for (int i = 0; i < 5; ++i) {
+        for (int i = 0; i < 50; ++i) { // margen para sistemas con loopback más lento
             simTimeMs += 10;
             server.update(serverSession, simTimeMs);
             allowed.update(serverSession, simTimeMs);
@@ -158,7 +163,7 @@ int main() {
         NetworkClient ghost;
         ghost.connect("127.0.0.1", testPort, "Ghost");
 
-        for (int i = 0; i < 5; ++i) {
+        for (int i = 0; i < 50; ++i) { // margen para sistemas con loopback más lento
             simTimeMs += 10;
             server.update(serverSession, simTimeMs);
             ghost.update(serverSession, simTimeMs);
@@ -184,7 +189,7 @@ int main() {
         NetworkClient clientAlice;
         clientAlice.connect("127.0.0.1", testPort, "Alice");
 
-        for (int i = 0; i < 5; ++i) {
+        for (int i = 0; i < 50; ++i) { // margen para sistemas con loopback más lento
             simTimeMs += 10;
             server.update(serverSession, simTimeMs);
             clientAlice.update(serverSession, simTimeMs);
@@ -212,7 +217,7 @@ int main() {
 
         // Desconexión de Alice
         clientAlice.disconnect();
-        for (int i = 0; i < 5; ++i) {
+        for (int i = 0; i < 50; ++i) { // margen para sistemas con loopback más lento
             simTimeMs += 10;
             server.update(serverSession, simTimeMs);
             std::this_thread::sleep_for(std::chrono::milliseconds(2));
@@ -222,7 +227,7 @@ int main() {
         NetworkClient clientAliceReconnected;
         clientAliceReconnected.connect("127.0.0.1", testPort, "Alice");
 
-        for (int i = 0; i < 5; ++i) {
+        for (int i = 0; i < 50; ++i) { // margen para sistemas con loopback más lento
             simTimeMs += 10;
             server.update(serverSession, simTimeMs);
             clientAliceReconnected.update(serverSession, simTimeMs);
@@ -239,7 +244,7 @@ int main() {
                "El inventario de 17 diamantes debe haberse preservado al reconectar");
 
         clientAliceReconnected.disconnect();
-        for (int i = 0; i < 5; ++i) {
+        for (int i = 0; i < 50; ++i) { // margen para sistemas con loopback más lento
             simTimeMs += 10;
             server.update(serverSession, simTimeMs);
             std::this_thread::sleep_for(std::chrono::milliseconds(2));

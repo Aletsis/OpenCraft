@@ -28,7 +28,8 @@ int main() {
         WorldSession s;
         s.init(2, 1);
         buildArena(s.getWorld());
-        s.getClock().setTickCount(14000); // de noche: el zombi no arde
+        s.getClock().setTickCount(14000);                          // de noche: el zombi no arde
+        s.getCommandEngine().getGameRules().doMobSpawning = false; // solo el zombi del escenario
         s.getPlayer().position = Math::Vec3(20.5f, 101.0f, 5.5f);
         s.getPlayer().prevPosition = s.getPlayer().position;
         s.getMobs().emplace_back(9002, MobType::Zombie, Math::Vec3(4.0f, 100.0f, 5.5f));

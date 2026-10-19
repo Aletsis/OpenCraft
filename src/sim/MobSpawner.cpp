@@ -68,7 +68,7 @@ bool MobSpawner::canSpawnAt(World& world, MobType type, const BlockPos& pos, uin
 }
 
 void MobSpawner::tick(World& world, const PlayerEntity& player, std::vector<MobEntity>& mobs, EntityId& nextEntityId,
-                      uint32_t difficulty, float sunlightFactor) {
+                      uint32_t difficulty, float sunlightFactor, bool allowSpawning) {
     // 1. Política de Despawn
     for (auto& mob : mobs) {
         if (!mob.isAlive || mob.isDead || mob.isPersistent) continue;
@@ -83,7 +83,7 @@ void MobSpawner::tick(World& world, const PlayerEntity& player, std::vector<MobE
         }
         // Despawn aleatorio si está a más de 32 bloques y lleva más de 30 segundos (600 ticks)
         else if (distSq > RANDOM_DESPAWN_DIST * RANDOM_DESPAWN_DIST && mob.aiTicks > 600) {
-            if (rand() % 800 == 0) {
+            if (m_rng.nextBelow(800) == 0) {
                 mob.isDead = true;
                 mob.isAlive = false;
             }
@@ -94,7 +94,8 @@ void MobSpawner::tick(World& world, const PlayerEntity& player, std::vector<MobE
     mobs.erase(std::remove_if(mobs.begin(), mobs.end(), [](const MobEntity& m) { return m.isDead || !m.isAlive; }),
                mobs.end());
 
-    // 2. Comprobar intervalo de aparición (cada 20 ticks / 1 segundo)
+    // 2. Comprobar intervalo de aparición (cada 20 ticks / 1 segundo); la regla doMobSpawning la desactiva
+    if (!allowSpawning) return;
     m_spawnTimer++;
     if (m_spawnTimer < 20) return;
     m_spawnTimer = 0;
@@ -114,9 +115,10 @@ void MobSpawner::tick(World& world, const PlayerEntity& player, std::vector<MobE
 
     // Intentar hasta 4 apariciones alrededor del jugador
     for (int attempt = 0; attempt < 4; ++attempt) {
-        float angle = static_cast<float>(rand() % 360);
+        float angle = static_cast<float>(m_rng.nextBelow(360));
         float rad = Math::radians(angle);
-        float dist = MIN_SPAWN_DIST + static_cast<float>(rand() % static_cast<int>(MAX_SPAWN_DIST - MIN_SPAWN_DIST));
+        float dist = MIN_SPAWN_DIST +
+                     static_cast<float>(m_rng.nextBelow(static_cast<uint32_t>(MAX_SPAWN_DIST - MIN_SPAWN_DIST)));
 
         int targetX = static_cast<int>(std::floor(player.position.x + std::cos(rad) * dist));
         int targetZ = static_cast<int>(std::floor(player.position.z + std::sin(rad) * dist));
@@ -143,7 +145,7 @@ void MobSpawner::tick(World& world, const PlayerEntity& player, std::vector<MobE
 
         // Decidir si generar monstruo o pasivo
         if (monsterCount < MAX_MONSTERS && difficulty > 0) {
-            int roll = rand() % 100;
+            int roll = static_cast<int>(m_rng.nextBelow(100));
             MobType mType = MobType::Zombie;
             if (roll < 40)
                 mType = MobType::Zombie;

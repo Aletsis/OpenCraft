@@ -69,6 +69,12 @@ consideró publicable. El estado verificado y las limitaciones están en [docs/E
 - El stick izquierdo del mando movía al jugador hacia atrás al empujarlo hacia delante.
 - `-DOPENCRAFT_BUILD_CLIENT=OFF` fallaba al configurar por unas reglas `install()` duplicadas.
 - El efecto `wither` de comandos y paquetes anteriores se reconoce como Decaimiento.
+- La simulación usaba `rand()`, cuya secuencia cambia según el sistema: la aparición de criaturas, su
+  paseo y los objetos de las explosiones diferían entre Linux y macOS. Ahora usan un generador propio
+  determinista (misma semilla, misma partida en cualquier plataforma).
+- La regla `doMobSpawning` se aceptaba pero no tenía efecto.
+- Los nombres de jugador se registraban con bytes basura en macOS; una prueba de red bloqueaba
+  indefinidamente si el paquete por loopback no llegaba en el mismo instante.
 - Pruebas que dependían de la carga de la máquina (`StreamingCacheAndMemoryTest`,
   `MobArchetypesAndPersistenceTest`) ahora son deterministas.
 

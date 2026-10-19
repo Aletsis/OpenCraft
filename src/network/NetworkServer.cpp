@@ -427,7 +427,8 @@ void NetworkServer::handleIncomingPacket(const uint8_t* buffer, size_t size, con
                 }
 
                 broadcastChat("Servidor", std::string(cleanName) + " se ha unido a la partida", true);
-                Log::info("Cliente '{}' conectado con éxito (SessionId: {}, EntityId: {})", cleanName, sid, eid);
+                Log::info("Cliente '{}' conectado con éxito (SessionId: {}, EntityId: {})", std::string_view(cleanName),
+                          sid, eid);
                 return;
             }
 

@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <cstdint>
+#include "core/DeterministicRandom.hpp"
 #include "sim/MobEntity.hpp"
 
 namespace OpenCraft {
@@ -22,13 +23,17 @@ public:
     ~MobSpawner() = default;
 
     void tick(World& world, const PlayerEntity& player, std::vector<MobEntity>& mobs, EntityId& nextEntityId,
-              uint32_t difficulty, float sunlightFactor);
+              uint32_t difficulty, float sunlightFactor, bool allowSpawning = true);
 
     // Intentar aparición manual de una criatura en coordenadas específicas respetando reglas
     bool canSpawnAt(World& world, MobType type, const BlockPos& pos, uint32_t difficulty, float sunlightFactor) const;
 
+    // Semilla de las apariciones (la sesión usa la del mundo): misma secuencia en todas las plataformas
+    void setSeed(uint64_t seed) noexcept { m_rng.seed(seed ^ 0x5350415752ULL); }
+
 private:
     uint32_t m_spawnTimer = 0;
+    DeterministicRandom m_rng;
 };
 
 } // namespace OpenCraft
