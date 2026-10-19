@@ -11,6 +11,7 @@ struct WindowConfig {
     int height = 720;
     bool vsync = true;
     bool fullscreen = false;
+    std::string glBackend = "auto"; // auto | native | angle
 };
 
 class Window {
@@ -43,6 +44,8 @@ public:
 
     SDL_Window* getSDLWindow() const noexcept { return m_window; }
     SDL_GLContext getGLContext() const noexcept { return m_glContext; }
+    // Backend de OpenGL ES en uso: "nativo" o "ANGLE"
+    const std::string& getGLBackendName() const noexcept { return m_glBackendName; }
 
 private:
     WindowConfig m_config;
@@ -53,6 +56,10 @@ private:
     int m_fbWidth = 0;
     int m_fbHeight = 0;
     bool m_shouldClose = false;
+    std::string m_glBackendName = "nativo";
+
+    bool createWindowAndContext(const std::string& angleGlesPath); // vacío = controlador nativo
+    void destroyWindowAndContext();
 };
 
 } // namespace OpenCraft

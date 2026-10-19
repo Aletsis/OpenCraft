@@ -44,6 +44,9 @@ public:
 
     // Copia de seguridad completa en backups/
     std::filesystem::path backupWorld(const std::string& worldId);
+    // Copia recursiva portable (crea el destino si no existe y sobrescribe archivos)
+    static bool copyDirectoryTree(const std::filesystem::path& src, const std::filesystem::path& dst,
+                                  std::error_code& ec);
 
     // Migración de esquema (conservando respaldo previo e idempotente)
     StorageError migrateWorld(const std::string& worldId, uint32_t targetSchema = CURRENT_SCHEMA_VERSION);

@@ -1,15 +1,11 @@
 #include "network/LANDiscovery.hpp"
 #include "network/NetworkProtocol.hpp"
 #include "core/Log.hpp"
+#include "network/Socket.hpp"
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <fcntl.h>
 #include <cstring>
 #include <sstream>
+#include <stdexcept>
 
 namespace OpenCraft::Net {
 
@@ -19,31 +15,23 @@ LANDiscovery::LANDiscovery() = default;
 
 LANDiscovery::~LANDiscovery() { stop(); }
 
-static bool setNonBlocking(int fd) {
-    int flags = fcntl(fd, F_GETFL, 0);
-    if (flags == -1) return false;
-    return fcntl(fd, F_SETFL, flags | O_NONBLOCK) != -1;
-}
-
 bool LANDiscovery::startBroadcasting(uint16_t gamePort, const std::string& serverName) {
     m_gamePort = gamePort;
     m_serverName = serverName;
 
-    m_broadcastSocket = socket(AF_INET, SOCK_DGRAM, 0);
-    if (m_broadcastSocket < 0) {
+    m_broadcastSocket = openUdpSocket();
+    if (!isValidSocket(m_broadcastSocket)) {
         Log::error("Fallo al crear socket para broadcast LAN");
         return false;
     }
 
-    int broadcastEnable = 1;
-    if (setsockopt(m_broadcastSocket, SOL_SOCKET, SO_BROADCAST, &broadcastEnable, sizeof(broadcastEnable)) < 0) {
+    if (!setSocketOption(m_broadcastSocket, SOL_SOCKET, SO_BROADCAST, 1)) {
         Log::error("Fallo al configurar SO_BROADCAST");
-        close(m_broadcastSocket);
-        m_broadcastSocket = -1;
+        closeSocket(m_broadcastSocket);
+        m_broadcastSocket = INVALID_SOCKET_HANDLE;
         return false;
     }
 
-    setNonBlocking(m_broadcastSocket);
     m_isBroadcasting = true;
     m_lastBroadcastTime = std::chrono::steady_clock::now();
     Log::info("Anuncio de servidor en red local (LAN Broadcast) iniciado para: '{}'", m_serverName);
@@ -51,16 +39,15 @@ bool LANDiscovery::startBroadcasting(uint16_t gamePort, const std::string& serve
 }
 
 bool LANDiscovery::startListening() {
-    m_listenSocket = socket(AF_INET, SOCK_DGRAM, 0);
-    if (m_listenSocket < 0) {
+    m_listenSocket = openUdpSocket();
+    if (!isValidSocket(m_listenSocket)) {
         Log::error("Fallo al crear socket de escucha LAN");
         return false;
     }
 
-    int reuse = 1;
-    setsockopt(m_listenSocket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
+    setSocketOption(m_listenSocket, SOL_SOCKET, SO_REUSEADDR, 1);
 #ifdef SO_REUSEPORT
-    setsockopt(m_listenSocket, SOL_SOCKET, SO_REUSEPORT, &reuse, sizeof(reuse));
+    setSocketOption(m_listenSocket, SOL_SOCKET, SO_REUSEPORT, 1);
 #endif
 
     sockaddr_in addr{};
@@ -68,34 +55,29 @@ bool LANDiscovery::startListening() {
     addr.sin_port = htons(DISCOVERY_PORT);
     addr.sin_addr.s_addr = INADDR_ANY;
 
-    if (bind(m_listenSocket, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) < 0) {
+    if (!bindSocket(m_listenSocket, addr)) {
         Log::warn("Puerto de escucha LAN ocupado o restringido");
-        close(m_listenSocket);
-        m_listenSocket = -1;
+        closeSocket(m_listenSocket);
+        m_listenSocket = INVALID_SOCKET_HANDLE;
         return false;
     }
 
-    setNonBlocking(m_listenSocket);
     m_isListening = true;
     Log::info("Búsqueda de partidas locales (LAN Discovery) activa en puerto {}", DISCOVERY_PORT);
     return true;
 }
 
 void LANDiscovery::stop() {
-    if (m_broadcastSocket >= 0) {
-        close(m_broadcastSocket);
-        m_broadcastSocket = -1;
-    }
-    if (m_listenSocket >= 0) {
-        close(m_listenSocket);
-        m_listenSocket = -1;
-    }
+    closeSocket(m_broadcastSocket);
+    m_broadcastSocket = INVALID_SOCKET_HANDLE;
+    closeSocket(m_listenSocket);
+    m_listenSocket = INVALID_SOCKET_HANDLE;
     m_isBroadcasting = false;
     m_isListening = false;
 }
 
 void LANDiscovery::sendBroadcastPacket() {
-    if (m_broadcastSocket < 0) return;
+    if (!isValidSocket(m_broadcastSocket)) return;
 
     sockaddr_in destAddr{};
     destAddr.sin_family = AF_INET;
@@ -105,20 +87,17 @@ void LANDiscovery::sendBroadcastPacket() {
     // Formato de payload: MAGIC;NAME;PORT
     std::string payload = std::string(DISCOVERY_MAGIC) + ";" + m_serverName + ";" + std::to_string(m_gamePort);
 
-    sendto(m_broadcastSocket, payload.c_str(), payload.length(), 0, reinterpret_cast<sockaddr*>(&destAddr),
-           sizeof(destAddr));
+    sendTo(m_broadcastSocket, payload.data(), payload.size(), destAddr);
 }
 
 void LANDiscovery::pollListenPackets() {
-    if (m_listenSocket < 0) return;
+    if (!isValidSocket(m_listenSocket)) return;
 
     char buffer[512];
     sockaddr_in senderAddr{};
-    socklen_t addrLen = sizeof(senderAddr);
 
     while (true) {
-        ssize_t bytes =
-            recvfrom(m_listenSocket, buffer, sizeof(buffer) - 1, 0, reinterpret_cast<sockaddr*>(&senderAddr), &addrLen);
+        long long bytes = recvFrom(m_listenSocket, buffer, sizeof(buffer) - 1, senderAddr);
         if (bytes <= 0) break;
 
         buffer[bytes] = '\0';
@@ -128,8 +107,17 @@ void LANDiscovery::pollListenPackets() {
         std::string magic, name, portStr;
         if (std::getline(ss, magic, ';') && std::getline(ss, name, ';') && std::getline(ss, portStr, ';')) {
             if (magic == DISCOVERY_MAGIC) {
-                std::string ip = inet_ntoa(senderAddr.sin_addr);
-                uint16_t port = static_cast<uint16_t>(std::stoi(portStr));
+                char ipBuf[INET_ADDRSTRLEN] = {};
+                inet_ntop(AF_INET, &senderAddr.sin_addr, ipBuf, sizeof(ipBuf));
+                std::string ip = ipBuf;
+                int parsedPort = 0;
+                try {
+                    parsedPort = std::stoi(portStr);
+                } catch (const std::exception&) {
+                    continue; // anuncio malformado
+                }
+                if (parsedPort <= 0 || parsedPort > 65535) continue;
+                uint16_t port = static_cast<uint16_t>(parsedPort);
 
                 auto now = std::chrono::steady_clock::now();
                 bool found = false;

@@ -2,7 +2,7 @@
 
 #include <string_view>
 #include <vector>
-#include <GLES3/gl3.h>
+#include "render/GL.hpp"
 #include "render/Shader.hpp"
 #include "render/TextureAtlas.hpp"
 

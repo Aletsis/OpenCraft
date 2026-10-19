@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
-#include <netinet/in.h>
+#include "network/Socket.hpp"
 
 #include "network/NetworkProtocol.hpp"
 #include "network/ReliableChannel.hpp"
@@ -44,7 +44,7 @@ public:
     const std::vector<ChatMessageData>& getChatHistory() const noexcept { return m_chatHistory; }
 
 private:
-    int m_socket = -1;
+    SocketHandle m_socket = INVALID_SOCKET_HANDLE;
     sockaddr_in m_serverAddr{};
     std::string m_playerName;
     ClientConnectionState m_state = ClientConnectionState::Disconnected;

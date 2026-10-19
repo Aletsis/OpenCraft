@@ -69,9 +69,13 @@ Cada etiqueta `vX.Y.Z` publica una [GitHub Release](https://github.com/Aletsis/O
 | :--- | :--- | :--- |
 | `opencraft-<versión>-linux-x86_64.tar.gz` | Cliente, servidor y recursos | glibc 2.39+ (Ubuntu 24.04, Debian 13, Fedora 40 o posteriores) y OpenGL ES 3 (Mesa) |
 | `opencraft-<versión>-linux-aarch64.tar.gz` | Lo mismo para ARM64 (Raspberry Pi 5, teléfonos Linux) | Igual que el anterior |
+| `opencraft-<versión>-windows-x86_64.zip` | Cliente, servidor, recursos y ANGLE | Windows 10/11 de 64 bits con Direct3D 11 |
+| `opencraft-<versión>-windows-arm64.zip` | Lo mismo para Windows en ARM (Snapdragon) | Windows 11 ARM64 |
 | `opencraft-server-<versión>-macos-arm64.tar.gz` | Solo el servidor dedicado (experimental) | macOS 15 en Apple Silicon |
 
-SDL3 va enlazada dentro del ejecutable. Windows, Android e iOS todavía no están disponibles (ver
+En Linux, SDL3 va enlazada dentro del ejecutable y se usa el OpenGL ES del sistema. En Windows, el juego
+traduce OpenGL ES a Direct3D 11 con ANGLE (incluido); `--gl native` usa en su lugar el controlador de la
+tarjeta. Android e iOS todavía no están disponibles (ver
 [limitaciones](docs/ESTADO_RC1.md#limitaciones-conocidas)). Cada paquete incluye su suma `.sha256`.
 
 ## Desarrollo e integración continua

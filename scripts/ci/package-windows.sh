@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+# Empaqueta OpenCraft para Windows desde un shell MSYS2 (UCRT64 o CLANGARM64): ejecutables, recursos,
+# ANGLE (libEGL/libGLESv2), las DLL de las que dependen y sus licencias; hace pruebas de humo y genera
+# opencraft-<versión>-windows-<arquitectura>.zip con su .sha256.
+#
+# Uso: scripts/ci/package-windows.sh <build_release> <directorio_salida> <x86_64|arm64>
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+BUILD="$(cd "$1" && pwd)"
+mkdir -p "$2"
+OUT="$(cd "$2" && pwd)"
+ARCH="$3"
+: "${MINGW_PREFIX:?Ejecute este script dentro de un shell MSYS2 (UCRT64 o CLANGARM64)}"
+
+VERSION="$(cat "$BUILD/version.txt")"
+PACKAGE="opencraft-${VERSION}-windows-${ARCH}"
+STAGE="$OUT/$PACKAGE"
+rm -rf "$STAGE" "$OUT/$PACKAGE.zip" "$OUT/$PACKAGE.zip.sha256"
+mkdir -p "$STAGE/licenses"
+
+cp "$BUILD/opencraft.exe" "$BUILD/opencraft_server.exe" "$STAGE/"
+mkdir -p "$STAGE/assets"
+cp -r "$ROOT/assets/shaders" "$ROOT/assets/audio" "$STAGE/assets/"
+cp "$ROOT/LICENSE" "$ROOT/NOTICE" "$ROOT/README.md" "$ROOT/CHANGELOG.md" "$ROOT/docs/MANUAL.md" "$STAGE/"
+
+# ANGLE: OpenGL ES 3 sobre Direct3D 11 (el juego lo usa por defecto en Windows)
+cp "$MINGW_PREFIX/bin/libEGL.dll" "$MINGW_PREFIX/bin/libGLESv2.dll" "$STAGE/"
+
+# Dependencias de MSYS2 (SDL3, runtime de C++, zlib...), de forma transitiva. Se lee la tabla de
+# importaciones con objdump en lugar de ldd, que ejecuta el programa y se bloquea en Windows ARM64.
+OBJDUMP="$(command -v objdump || command -v llvm-objdump)"
+for _ in 1 2 3 4 5; do
+    for bin in "$STAGE"/*.exe "$STAGE"/*.dll; do
+        LC_ALL=C "$OBJDUMP" -p "$bin" | awk '/DLL Name:/{print $3}'
+    done | sort -u | while read -r name; do
+        [[ -f "$STAGE/$name" ]] && continue
+        match="$(find "$MINGW_PREFIX/bin" -maxdepth 1 -iname "$name" | head -1)"
+        [[ -n "$match" ]] && cp "$match" "$STAGE/"
+    done
+done
+
+# Licencias de los componentes de terceros que se distribuyen en binario
+for pkg in sdl3 angleproject libwinpthread zlib libgcc "libstdc++" gcc-libs libc++ libunwind; do
+    src="$MINGW_PREFIX/share/licenses/$pkg"
+    [[ -d "$src" ]] && cp -r "$src" "$STAGE/licenses/$pkg"
+done
+cp "$ROOT/third_party/khronos/LICENSE.md" "$STAGE/licenses/khronos-headers.md"
+
+echo "Contenido de $PACKAGE:"
+ls -1 "$STAGE"
+
+# Pruebas de humo desde un directorio ajeno
+SMOKE="$OUT/smoke-windows"
+rm -rf "$SMOKE" && mkdir -p "$SMOKE"
+"$STAGE/opencraft.exe" --version
+mkdir -p "$SMOKE/server"
+( cd "$SMOKE/server" && "$STAGE/opencraft_server.exe" --port 35992 --world ci --ticks 20 | tail -1 )
+cat > "$SMOKE/smoke.txt" <<SCRIPT
+waitready
+wait 2
+shot smoke.png
+quit
+SCRIPT
+# Se usa el driver de vídeo normal (ventana en la sesión del equipo): el driver offscreen de SDL necesita
+# EGL_EXT_device_enumeration, que el ANGLE de Direct3D 11 no ofrece
+if ( cd "$SMOKE" && APPDATA="$(cygpath -w "$SMOKE/appdata")" SDL_AUDIO_DRIVER=dummy \
+        timeout 300 "$STAGE/opencraft.exe" --create Humo --seed 1 --script smoke.txt > smoke.log 2>&1 ); then
+    test -s "$SMOKE/smoke.png" || { cat "$SMOKE/smoke.log"; echo "La prueba de humo no generó la captura"; exit 1; }
+    grep -a "Contexto Gráfico" "$SMOKE/smoke.log" || true
+    echo "Prueba de humo gráfica correcta"
+else
+    cat "$SMOKE/smoke.log"
+    exit 1
+fi
+
+( cd "$OUT" && zip -qr9 "$PACKAGE.zip" "$PACKAGE" && sha256sum "$PACKAGE.zip" > "$PACKAGE.zip.sha256" )
+echo "Paquete: $OUT/$PACKAGE.zip"
+cat "$OUT/$PACKAGE.zip.sha256"

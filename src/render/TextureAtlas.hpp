@@ -2,7 +2,7 @@
 
 #include <cstdint>
 #include <vector>
-#include <GLES3/gl3.h>
+#include "render/GL.hpp"
 
 namespace OpenCraft {
 

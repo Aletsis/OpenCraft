@@ -1,5 +1,6 @@
 #include "storage/WorldStorage.hpp"
 #include "core/Log.hpp"
+#include <algorithm>
 #include <fstream>
 #include <cerrno>
 #include <set>
@@ -7,6 +8,14 @@
 #if defined(__unix__) || defined(__APPLE__)
 #include <fcntl.h>
 #include <unistd.h>
+#elif defined(_WIN32)
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
 #endif
 
 namespace OpenCraft {
@@ -107,6 +116,25 @@ StorageError writeFileDurable(const std::filesystem::path& path, const std::vect
     }
     bool synced = ::fsync(fd) == 0;
     bool closed = ::close(fd) == 0;
+    return (synced && closed) ? StorageError::None : StorageError::IoError;
+#elif defined(_WIN32)
+    HANDLE h =
+        CreateFileW(path.wstring().c_str(), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+    if (h == INVALID_HANDLE_VALUE) return StorageError::IoError;
+    size_t written = 0;
+    while (written < data.size()) {
+        DWORD chunk = static_cast<DWORD>(std::min<size_t>(data.size() - written, 1u << 30));
+        DWORD n = 0;
+        if (!WriteFile(h, data.data() + written, chunk, &n, nullptr)) {
+            DWORD err = GetLastError();
+            CloseHandle(h);
+            return (err == ERROR_DISK_FULL || err == ERROR_HANDLE_DISK_FULL) ? StorageError::DiskFull
+                                                                             : StorageError::IoError;
+        }
+        written += n;
+    }
+    bool synced = FlushFileBuffers(h) != 0;
+    bool closed = CloseHandle(h) != 0;
     return (synced && closed) ? StorageError::None : StorageError::IoError;
 #else
     std::ofstream out(path, std::ios::binary | std::ios::trunc);

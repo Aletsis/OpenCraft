@@ -15,7 +15,7 @@ que se conservan como registro histórico.
 | Linux móvil (Phosh, Plasma Mobile) | Controles táctiles y escala de interfaz incluidos; sin verificar en un dispositivo |
 | Linux ARM64 | Paquete generado y probado por CI (runner ARM64); sin verificar en hardware físico |
 | macOS arm64 | Solo el servidor dedicado, experimental (el cliente necesita OpenGL ES 3) |
-| Windows | **No disponible**: la red usa sockets POSIX y el cliente OpenGL ES 3 |
+| Windows x86_64 / ARM64 | Paquete con ANGLE (Direct3D 11) generado y probado por CI en Windows; también verificado con compilación cruzada MinGW y Wine. Sin probar en hardware físico |
 | Android / iOS | **No disponibles**: solo hay plantillas de manifiesto; falta el proyecto de compilación |
 
 ## Verificación realizada
@@ -95,7 +95,10 @@ guardados con los identificadores anteriores cargan sin cambios: la tabla de ali
 3. **Sin consola de chat ni de comandos** en el cliente (el intérprete de comandos existe en la simulación).
 4. **Sin vista en tercera persona**; los modelos de criaturas son cajas sencillas sin texturas propias.
 5. **Paquetes de contenido** solo se cargan desde código (no hay cargador de archivos).
-6. **Catálogo de paridad** no exhaustivo: no se declara un porcentaje de paridad con el juego de referencia.
+6. **ANGLE en Linux** (`--gl angle`) es opcional y no se distribuye: con el ANGLE de vcpkg para Linux no
+  se obtiene una pantalla EGL en X11, así que el juego vuelve al controlador nativo (comportamiento
+  verificado). En Windows, ANGLE es el backend por defecto y se prueba en CI.
+7. **Catálogo de paridad** no exhaustivo: no se declara un porcentaje de paridad con el juego de referencia.
 
 ## Siguientes pasos hacia 1.0.0
 

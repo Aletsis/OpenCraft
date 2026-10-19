@@ -4,6 +4,22 @@ Todas las modificaciones notables realizadas a través de las 16 fases de desarr
 
 ---
 
+## [Sin publicar]
+
+### Añadido
+- Windows x86_64 y ARM64: cliente, servidor y suite de pruebas, con paquete `.zip` que incluye ANGLE
+  (OpenGL ES sobre Direct3D 11), SDL3 y las licencias de terceros. CI y release en runners de Windows.
+- Opción `--gl auto|native|angle` (y `OPENCRAFT_GL`, `OPENCRAFT_ANGLE_DIR`) para elegir el backend de
+  OpenGL ES; si ANGLE no puede crear el contexto se usa el controlador nativo.
+
+### Cambiado
+- OpenGL ES se carga en tiempo de ejecución a través de SDL en lugar de enlazar `libGLESv2`.
+- La red usa una capa de sockets común para POSIX y Winsock.
+
+### Corregido
+- macOS se identificaba como iOS; los datos se guardan ahora en `~/Library/Application Support/OpenCraft`.
+- Las copias de seguridad de mundos fallaban con «File exists» en algunas bibliotecas estándar.
+
 ## [1.0.0-rc1] - 2026-10-18
 
 Primera versión candidata jugable de principio a fin en Linux de escritorio y primera versión publicada

@@ -21,12 +21,15 @@ void printHelp(const char* argv0) {
               << "  --width <px>          Ancho inicial de la ventana (por defecto 1280)\n"
               << "  --height <px>         Alto inicial de la ventana (por defecto 720)\n"
               << "  --fullscreen          Iniciar a pantalla completa\n"
+              << "  --gl <backend>        OpenGL ES: auto (por defecto), native (controlador) o angle\n"
               << "  --autosave <seg>      Intervalo de autoguardado (por defecto 30)\n"
               << "  --script <archivo>    Ejecutar un guion de pruebas automáticas (QA)\n"
               << "  --version             Mostrar la versión y salir\n"
               << "  --help                Mostrar esta ayuda\n\n"
               << "Variables de entorno:\n"
               << "  OPENCRAFT_ASSETS_DIR  Carpeta de recursos (shaders) si no está junto al ejecutable\n"
+              << "  OPENCRAFT_GL          Igual que --gl (la opción de línea de comandos tiene prioridad)\n"
+              << "  OPENCRAFT_ANGLE_DIR   Carpeta con libEGL y libGLESv2 de ANGLE\n"
               << "  XDG_DATA_HOME         Base de mundos, copias y capturas (por defecto ~/.local/share/opencraft)\n";
 }
 
@@ -35,6 +38,7 @@ void printHelp(const char* argv0) {
 int main(int argc, char* argv[]) {
     AppConfig config;
     config.title = "OpenCraft";
+    if (const char* gl = std::getenv("OPENCRAFT_GL")) config.glBackend = gl;
 
     for (int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
@@ -68,6 +72,12 @@ int main(int argc, char* argv[]) {
                 config.height = std::stoi(next());
             } else if (arg == "--fullscreen") {
                 config.fullscreen = true;
+            } else if (arg == "--gl") {
+                config.glBackend = next();
+                if (config.glBackend != "auto" && config.glBackend != "native" && config.glBackend != "angle") {
+                    std::cerr << "--gl admite auto, native o angle\n";
+                    return 2;
+                }
             } else if (arg == "--autosave") {
                 config.autoSaveInterval = std::stof(next());
             } else if (arg == "--script") {

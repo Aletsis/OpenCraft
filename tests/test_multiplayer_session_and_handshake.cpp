@@ -3,8 +3,7 @@
 #include <chrono>
 #include <thread>
 #include <cstring>
-#include <arpa/inet.h>
-#include <unistd.h>
+#include "network/Socket.hpp"
 #include <filesystem>
 #include "storage/WorldStorage.hpp"
 #include "network/NetworkServer.hpp"
@@ -67,8 +66,8 @@ int main() {
     // 2. Rechazo explícito por versión incompatible de protocolo
     {
         // Enviar paquete Handshake con versión antigua (p. ej. 99)
-        int sock = socket(AF_INET, SOCK_DGRAM, 0);
-        assert(sock >= 0);
+        SocketHandle sock = openUdpSocket(); // no bloqueante
+        assert(isValidSocket(sock));
 
         sockaddr_in saddr{};
         saddr.sin_family = AF_INET;
@@ -77,19 +76,17 @@ int main() {
 
         ByteWriter w;
         serializeHandshake(w, 1, "OldBob", 99); // Versión incompatible
-        sendto(sock, w.data(), w.size(), 0, reinterpret_cast<sockaddr*>(&saddr), sizeof(saddr));
+        sendTo(sock, w.data(), w.size(), saddr);
 
         // Recibir respuesta de rechazo. La entrega por loopback no es instantánea en todos los sistemas
         // (macOS): se reintenta durante un máximo de 2 s en lugar de bloquear indefinidamente.
         uint8_t recvBuf[512];
-        socklen_t slen = sizeof(saddr);
-        ssize_t n = -1;
+        long long n = -1;
         for (int attempt = 0; attempt < 1000 && n <= 0; ++attempt) {
             simTimeMs += 10;
             server.update(serverSession, simTimeMs);
             std::this_thread::sleep_for(std::chrono::milliseconds(2));
-            slen = sizeof(saddr);
-            n = recvfrom(sock, recvBuf, sizeof(recvBuf), MSG_DONTWAIT, reinterpret_cast<sockaddr*>(&saddr), &slen);
+            n = recvFrom(sock, recvBuf, sizeof(recvBuf), saddr);
         }
         assert(n > 0 && "El servidor debe responder al cliente incompatible");
 
@@ -107,7 +104,7 @@ int main() {
         assert(rej.reason == RejectReason::IncompatibleVersion);
         assert(!rej.message.empty());
 
-        close(sock);
+        closeSocket(sock);
         std::cout << "  [OK] Rechazo por versión incompatible verificado: '" << rej.message << "'" << std::endl;
     }
 
@@ -181,7 +178,8 @@ int main() {
 
     // 5. Persistencia de perfiles remotos y reconexión con inventario preservado (A03 / F09)
     {
-        std::filesystem::path tempWorldPath = "/tmp/opencraft-test-multiplayer-storage";
+        std::filesystem::path tempWorldPath =
+            std::filesystem::temp_directory_path() / "opencraft-test-multiplayer-storage";
         std::filesystem::remove_all(tempWorldPath);
         WorldStorage storage(tempWorldPath);
         assert(storage.initializeWorld("MultiplayerTest", 123) == StorageError::None);

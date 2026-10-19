@@ -11,6 +11,8 @@ enum class PlatformType {
     LinuxMobile,
     Android,
     iOS,
+    Windows,
+    MacOS,
     Generic
 };
 

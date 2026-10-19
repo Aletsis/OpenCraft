@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <GLES3/gl3.h>
+#include "render/GL.hpp"
 #include "math/Math.hpp"
 
 namespace OpenCraft {

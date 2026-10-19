@@ -24,6 +24,7 @@ jobs:
   format:
     name: Formato (clang-format)
     runs-on: ubuntu-24.04
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
@@ -36,6 +37,7 @@ jobs:
     name: Compilación y pruebas (${{ matrix.name }})
     needs: format
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix:
@@ -78,6 +80,7 @@ jobs:
     name: ASan + UBSan
     needs: format
     runs-on: ubuntu-24.04
+    timeout-minutes: 90
     env:
       CC: gcc-14
       CXX: g++-14
@@ -100,6 +103,7 @@ jobs:
     name: Cobertura (mínimo 80 %)
     needs: format
     runs-on: ubuntu-24.04
+    timeout-minutes: 90
     env:
       CC: gcc-14
       CXX: g++-14
@@ -125,11 +129,57 @@ jobs:
           path: build-coverage/coverage/
           retention-days: 14
 
+  windows:
+    name: Windows ${{ matrix.arch }} · ${{ matrix.msystem }} (cliente con ANGLE, servidor y pruebas)
+    needs: format
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            os: windows-2025
+            msystem: UCRT64
+          - arch: arm64
+            os: windows-11-arm
+            msystem: CLANGARM64
+    defaults:
+      run:
+        shell: msys2 {0}
+    env:
+      OPENCRAFT_TIME_BUDGET_SCALE: "3"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{ matrix.msystem }}
+          update: true
+          install: zip
+          pacboy: toolchain:p cmake:p ninja:p sdl3:p angleproject:p
+      - name: Compilar (Debug)
+        run: |
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug
+          cmake --build build -j"$(nproc)"
+      - name: Pruebas
+        run: ctest --test-dir build -j"$(nproc)" --timeout 900 --output-on-failure
+      - name: Compilación Release, paquete y prueba de humo con ANGLE
+        run: |
+          cmake -S . -B build-release -G Ninja -DCMAKE_BUILD_TYPE=Release -DOPENCRAFT_BUILD_TESTS=OFF
+          cmake --build build-release -j"$(nproc)"
+          scripts/ci/package-windows.sh build-release dist ${{ matrix.arch }}
+      - uses: actions/upload-artifact@v7
+        with:
+          name: windows-${{ matrix.arch }}
+          path: dist/*.zip
+          retention-days: 7
+
   macos-server:
     # El cliente gráfico usa OpenGL ES 3, que macOS no ofrece; aquí se valida el servidor y la suite.
     name: macOS arm64 · servidor y pruebas (experimental)
     needs: format
     runs-on: macos-15
+    timeout-minutes: 90
     continue-on-error: true
     steps:
       - uses: actions/checkout@v7

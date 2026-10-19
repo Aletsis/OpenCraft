@@ -1,21 +1,11 @@
 #include "network/NetworkClient.hpp"
+#include "network/Socket.hpp"
 #include "network/PacketValidator.hpp"
 #include "core/Log.hpp"
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <fcntl.h>
 #include <cstring>
 
 namespace OpenCraft::Net {
-
-static bool setNonBlockingFd(int fd) {
-    int flags = fcntl(fd, F_GETFL, 0);
-    if (flags == -1) return false;
-    return fcntl(fd, F_SETFL, flags | O_NONBLOCK) != -1;
-}
 
 NetworkClient::NetworkClient() = default;
 
@@ -24,21 +14,19 @@ NetworkClient::~NetworkClient() { disconnect(); }
 bool NetworkClient::connect(const std::string& hostIp, uint16_t port, const std::string& playerName) {
     disconnect();
 
-    m_socket = socket(AF_INET, SOCK_DGRAM, 0);
-    if (m_socket < 0) {
+    m_socket = openUdpSocket();
+    if (!isValidSocket(m_socket)) {
         Log::error("NetworkClient: Fallo al crear socket UDP");
         m_state = ClientConnectionState::ConnectionFailed;
         return false;
     }
 
-    setNonBlockingFd(m_socket);
-
     m_serverAddr.sin_family = AF_INET;
     m_serverAddr.sin_port = htons(port);
     if (inet_pton(AF_INET, hostIp.c_str(), &m_serverAddr.sin_addr) <= 0) {
         Log::error("NetworkClient: IP inválida: {}", hostIp);
-        close(m_socket);
-        m_socket = -1;
+        closeSocket(m_socket);
+        m_socket = INVALID_SOCKET_HANDLE;
         m_state = ClientConnectionState::ConnectionFailed;
         return false;
     }
@@ -58,21 +46,21 @@ bool NetworkClient::connect(const std::string& hostIp, uint16_t port, const std:
 }
 
 void NetworkClient::disconnect() {
-    if (m_socket >= 0) {
+    if (isValidSocket(m_socket)) {
         if (m_state == ClientConnectionState::Connected) {
             ByteWriter w;
             serializeHeader(w, PacketType::PlayerDisconnect, ++m_sequence);
             sendRaw(w.data(), w.size());
         }
-        close(m_socket);
-        m_socket = -1;
+        closeSocket(m_socket);
+        m_socket = INVALID_SOCKET_HANDLE;
     }
     m_state = ClientConnectionState::Disconnected;
 }
 
 void NetworkClient::sendRaw(const void* data, size_t size) {
-    if (m_socket < 0 || !data || size == 0) return;
-    sendto(m_socket, data, size, 0, reinterpret_cast<const sockaddr*>(&m_serverAddr), sizeof(m_serverAddr));
+    if (!isValidSocket(m_socket) || !data || size == 0) return;
+    sendTo(m_socket, data, size, m_serverAddr);
 }
 
 void NetworkClient::sendAction(const PlayerActionData& action, uint64_t nowMs) {
@@ -255,15 +243,14 @@ void NetworkClient::handleIncomingPacket(const uint8_t* buffer, size_t size, Wor
 }
 
 void NetworkClient::update(WorldSession& session, uint64_t currentSimTimeMs) {
-    if (m_socket < 0) return;
+    if (!isValidSocket(m_socket)) return;
 
     // 1. Drenar paquetes entrantes
     uint8_t buffer[2048];
     sockaddr_in sender{};
-    socklen_t addrLen = sizeof(sender);
 
     while (true) {
-        ssize_t bytes = recvfrom(m_socket, buffer, sizeof(buffer), 0, reinterpret_cast<sockaddr*>(&sender), &addrLen);
+        long long bytes = recvFrom(m_socket, buffer, sizeof(buffer), sender);
         if (bytes <= 0) break;
         // Solo se aceptan paquetes del servidor al que se conectó (evita suplantación en la LAN)
         if (sender.sin_addr.s_addr != m_serverAddr.sin_addr.s_addr || sender.sin_port != m_serverAddr.sin_port) {
