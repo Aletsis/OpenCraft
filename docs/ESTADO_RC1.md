@@ -95,10 +95,10 @@ guardados con los identificadores anteriores cargan sin cambios: la tabla de ali
 3. **Sin consola de chat ni de comandos** en el cliente (el intérprete de comandos existe en la simulación).
 4. **Sin vista en tercera persona**; los modelos de criaturas son cajas sencillas sin texturas propias.
 5. **Paquetes de contenido** solo se cargan desde código (no hay cargador de archivos).
-5b. **ANGLE en Linux** (`--gl angle`) es opcional y no se distribuye: con el ANGLE de vcpkg para Linux no
-   se obtiene una pantalla EGL en X11, así que el juego vuelve al controlador nativo (comportamiento
-   verificado). En Windows, ANGLE es el backend por defecto y se prueba en CI.
-6. **Catálogo de paridad** no exhaustivo: no se declara un porcentaje de paridad con el juego de referencia.
+6. **ANGLE en Linux** (`--gl angle`) es opcional y no se distribuye: con el ANGLE de vcpkg para Linux no
+  se obtiene una pantalla EGL en X11, así que el juego vuelve al controlador nativo (comportamiento
+  verificado). En Windows, ANGLE es el backend por defecto y se prueba en CI.
+7. **Catálogo de paridad** no exhaustivo: no se declara un porcentaje de paridad con el juego de referencia.
 
 ## Siguientes pasos hacia 1.0.0
 
