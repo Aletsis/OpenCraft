@@ -25,6 +25,7 @@ jobs:
   linux:
     name: Linux ${{ matrix.arch }}
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
     strategy:
       fail-fast: true
       matrix:
@@ -70,6 +71,7 @@ jobs:
   windows:
     name: Windows ${{ matrix.arch }}
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
     strategy:
       fail-fast: true
       matrix:
@@ -117,6 +119,7 @@ jobs:
     # Experimental: solo el servidor dedicado (el cliente necesita OpenGL ES 3, que macOS no ofrece).
     name: macOS arm64 · servidor (experimental)
     runs-on: macos-15
+    timeout-minutes: 90
     continue-on-error: true
     steps:
       - uses: actions/checkout@v7
@@ -152,6 +155,7 @@ jobs:
     needs: [linux, windows, macos-server]
     if: ${{ !cancelled() && needs.linux.result == 'success' && needs.windows.result == 'success' }}
     runs-on: ubuntu-24.04
+    timeout-minutes: 90
     permissions:
       contents: write
     steps:

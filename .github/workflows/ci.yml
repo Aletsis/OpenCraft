@@ -24,6 +24,7 @@ jobs:
   format:
     name: Formato (clang-format)
     runs-on: ubuntu-24.04
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
@@ -36,6 +37,7 @@ jobs:
     name: Compilación y pruebas (${{ matrix.name }})
     needs: format
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix:
@@ -78,6 +80,7 @@ jobs:
     name: ASan + UBSan
     needs: format
     runs-on: ubuntu-24.04
+    timeout-minutes: 90
     env:
       CC: gcc-14
       CXX: g++-14
@@ -100,6 +103,7 @@ jobs:
     name: Cobertura (mínimo 80 %)
     needs: format
     runs-on: ubuntu-24.04
+    timeout-minutes: 90
     env:
       CC: gcc-14
       CXX: g++-14
@@ -129,6 +133,7 @@ jobs:
     name: Windows ${{ matrix.arch }} · ${{ matrix.msystem }} (cliente con ANGLE, servidor y pruebas)
     needs: format
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix:
@@ -174,6 +179,7 @@ jobs:
     name: macOS arm64 · servidor y pruebas (experimental)
     needs: format
     runs-on: macos-15
+    timeout-minutes: 90
     continue-on-error: true
     steps:
       - uses: actions/checkout@v7

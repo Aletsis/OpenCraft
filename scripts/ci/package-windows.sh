@@ -27,12 +27,16 @@ cp "$ROOT/LICENSE" "$ROOT/NOTICE" "$ROOT/README.md" "$ROOT/CHANGELOG.md" "$ROOT/
 # ANGLE: OpenGL ES 3 sobre Direct3D 11 (el juego lo usa por defecto en Windows)
 cp "$MINGW_PREFIX/bin/libEGL.dll" "$MINGW_PREFIX/bin/libGLESv2.dll" "$STAGE/"
 
-# Dependencias de MSYS2 (SDL3, runtime de C++, zlib...), de forma transitiva
-for _ in 1 2 3 4; do
+# Dependencias de MSYS2 (SDL3, runtime de C++, zlib...), de forma transitiva. Se lee la tabla de
+# importaciones con objdump en lugar de ldd, que ejecuta el programa y se bloquea en Windows ARM64.
+OBJDUMP="$(command -v objdump || command -v llvm-objdump)"
+for _ in 1 2 3 4 5; do
     for bin in "$STAGE"/*.exe "$STAGE"/*.dll; do
-        ldd "$bin" | awk '{print $3}' | grep -i "^${MINGW_PREFIX}/bin/.*\.dll$" || true
-    done | sort -u | while read -r dll; do
-        [[ -f "$STAGE/$(basename "$dll")" ]] || cp "$dll" "$STAGE/"
+        LC_ALL=C "$OBJDUMP" -p "$bin" | awk '/DLL Name:/{print $3}'
+    done | sort -u | while read -r name; do
+        [[ -f "$STAGE/$name" ]] && continue
+        match="$(find "$MINGW_PREFIX/bin" -maxdepth 1 -iname "$name" | head -1)"
+        [[ -n "$match" ]] && cp "$match" "$STAGE/"
     done
 done
 
