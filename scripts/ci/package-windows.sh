@@ -50,14 +50,17 @@ ls -1 "$STAGE"
 SMOKE="$OUT/smoke-windows"
 rm -rf "$SMOKE" && mkdir -p "$SMOKE"
 "$STAGE/opencraft.exe" --version
-( cd "$SMOKE" && "$STAGE/opencraft_server.exe" --port 35992 --world ci --ticks 20 | tail -1 )
+mkdir -p "$SMOKE/server"
+( cd "$SMOKE/server" && "$STAGE/opencraft_server.exe" --port 35992 --world ci --ticks 20 | tail -1 )
 cat > "$SMOKE/smoke.txt" <<SCRIPT
 waitready
 wait 2
 shot smoke.png
 quit
 SCRIPT
-if ( cd "$SMOKE" && APPDATA="$(cygpath -w "$SMOKE/appdata")" SDL_VIDEODRIVER=offscreen SDL_AUDIO_DRIVER=dummy \
+# Se usa el driver de vídeo normal (ventana en la sesión del equipo): el driver offscreen de SDL necesita
+# EGL_EXT_device_enumeration, que el ANGLE de Direct3D 11 no ofrece
+if ( cd "$SMOKE" && APPDATA="$(cygpath -w "$SMOKE/appdata")" SDL_AUDIO_DRIVER=dummy \
         timeout 300 "$STAGE/opencraft.exe" --create Humo --seed 1 --script smoke.txt > smoke.log 2>&1 ); then
     test -s "$SMOKE/smoke.png" || { cat "$SMOKE/smoke.log"; echo "La prueba de humo no generó la captura"; exit 1; }
     grep -a "Contexto Gráfico" "$SMOKE/smoke.log" || true
