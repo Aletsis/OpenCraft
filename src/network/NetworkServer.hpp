@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <memory>
-#include <netinet/in.h>
+#include "network/Socket.hpp"
 
 #include "network/NetworkProtocol.hpp"
 #include "network/ReliableChannel.hpp"
@@ -70,7 +70,7 @@ public:
 
 private:
     bool m_running = false;
-    int m_socket = -1;
+    SocketHandle m_socket = INVALID_SOCKET_HANDLE;
     uint16_t m_port = DEFAULT_PORT;
     std::string m_serverName;
     uint32_t m_maxPlayers = 16;

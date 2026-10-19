@@ -274,6 +274,28 @@ void WorldManager::closeWorld(const std::string& worldId) {
     std::erase(m_openWorldLocks, worldId);
 }
 
+bool WorldManager::copyDirectoryTree(const std::filesystem::path& src, const std::filesystem::path& dst,
+                                     std::error_code& ec) {
+    // Copia explícita archivo a archivo: std::filesystem::copy recursivo sobre un destino existente falla en
+    // algunas implementaciones (libstdc++ de MinGW devuelve «File exists»)
+    ec.clear();
+    std::filesystem::create_directories(dst, ec);
+    if (ec) return false;
+    for (auto it = std::filesystem::recursive_directory_iterator(src, ec);
+         !ec && it != std::filesystem::recursive_directory_iterator(); it.increment(ec)) {
+        std::filesystem::path rel = std::filesystem::relative(it->path(), src, ec);
+        if (ec) return false;
+        std::filesystem::path target = dst / rel;
+        if (it->is_directory(ec)) {
+            std::filesystem::create_directories(target, ec);
+        } else if (it->is_regular_file(ec)) {
+            std::filesystem::copy_file(it->path(), target, std::filesystem::copy_options::overwrite_existing, ec);
+        }
+        if (ec) return false;
+    }
+    return !ec;
+}
+
 std::filesystem::path WorldManager::backupWorld(const std::string& worldId) {
     std::filesystem::path srcDir = m_savesDir / worldId;
     if (!std::filesystem::exists(srcDir)) {
@@ -286,9 +308,7 @@ std::filesystem::path WorldManager::backupWorld(const std::string& worldId) {
     std::error_code ec;
     std::filesystem::create_directories(dstDir, ec);
 
-    std::filesystem::copy(srcDir, dstDir,
-                          std::filesystem::copy_options::recursive | std::filesystem::copy_options::overwrite_existing,
-                          ec);
+    if (!ec) copyDirectoryTree(srcDir, dstDir, ec);
 
     // No conservar session.lock dentro de la copia de seguridad (sin pisar el error de la copia)
     std::error_code lockEc;

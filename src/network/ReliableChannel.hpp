@@ -7,7 +7,7 @@
 #include <map>
 #include <functional>
 #include <random>
-#include <netinet/in.h>
+#include "network/Socket.hpp"
 #include "network/NetworkProtocol.hpp"
 
 namespace OpenCraft::Net {

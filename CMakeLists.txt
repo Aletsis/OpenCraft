@@ -21,14 +21,14 @@ endif()
 option(OPENCRAFT_BUILD_CLIENT "Compilar el cliente gráfico (requiere SDL3 y OpenGL ES 3)" ON)
 option(OPENCRAFT_BUILD_TESTS "Compilar la suite de pruebas automáticas" ON)
 
-# SDL3 y GLES solo son necesarios para el cliente: el servidor dedicado y las pruebas no los usan
+# SDL3 solo es necesaria para el cliente: el servidor dedicado y las pruebas no la usan. OpenGL ES no se
+# enlaza: el cliente carga sus funciones en tiempo de ejecución (controlador del sistema o ANGLE).
 if(OPENCRAFT_BUILD_CLIENT)
-    find_package(PkgConfig REQUIRED)
     find_package(SDL3 QUIET CONFIG)
     if(NOT SDL3_FOUND)
+        find_package(PkgConfig REQUIRED)
         pkg_check_modules(SDL3 REQUIRED sdl3)
     endif()
-    pkg_check_modules(GLESV2 REQUIRED glesv2)
 endif()
 
 # ==============================================================================
@@ -113,6 +113,13 @@ add_library(opencraft_sim STATIC
 target_include_directories(opencraft_sim PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
+find_package(Threads REQUIRED)
+target_link_libraries(opencraft_sim PUBLIC Threads::Threads)
+if(WIN32)
+    # Winsock 2 para la red; sin min/max de windows.h y con la API Unicode
+    target_link_libraries(opencraft_sim PUBLIC ws2_32)
+    target_compile_definitions(opencraft_sim PUBLIC NOMINMAX WIN32_LEAN_AND_MEAN UNICODE _UNICODE)
+endif()
 
 # ==============================================================================
 # Servidor Dedicado Headless de OpenCraft (Fase 09 — Sin ventana ni GPU)
@@ -135,6 +142,7 @@ add_executable(opencraft
     src/main.cpp
     src/app/Application.cpp
     src/core/Window.cpp
+    src/render/GL.cpp
     src/render/Shader.cpp
     src/render/TextureAtlas.cpp
     src/render/WorldRenderer.cpp
@@ -151,15 +159,11 @@ add_executable(opencraft
 
 target_include_directories(opencraft PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/third_party/khronos/include
     ${SDL3_INCLUDE_DIRS}
-    ${GLESV2_INCLUDE_DIRS}
 )
 
-target_link_libraries(opencraft PRIVATE
-    opencraft_sim
-    ${GLESV2_LIBRARIES}
-)
-target_link_directories(opencraft PRIVATE ${GLESV2_LIBRARY_DIRS})
+target_link_libraries(opencraft PRIVATE opencraft_sim)
 
 if(TARGET SDL3::SDL3)
     target_link_libraries(opencraft PRIVATE SDL3::SDL3)

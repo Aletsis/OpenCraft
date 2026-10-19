@@ -7,6 +7,11 @@ OpenCraft es un proyecto independiente. No está afiliado, patrocinado ni aproba
 ni por Microsoft. Todas las texturas se generan proceduralmente y todos los sonidos se sintetizan en
 el propio programa; OpenCraft no incluye recursos, código ni marcas de terceros.
 
-Componentes de terceros enlazados dinámicamente (no incluidos en este repositorio):
-- SDL3 (https://libsdl.org), licencia zlib.
-- Implementación de OpenGL ES del sistema (p. ej. Mesa, licencia MIT).
+Componentes de terceros:
+- Cabeceras de OpenGL ES 3.0 de Khronos (third_party/khronos), licencias MIT y Apache 2.0.
+- SDL3 (https://libsdl.org), licencia zlib. Va enlazada estáticamente en los paquetes de Linux y como
+  SDL3.dll en los de Windows.
+- ANGLE (https://angleproject.org), licencia BSD de 3 cláusulas. Se distribuye como libEGL.dll y
+  libGLESv2.dll en los paquetes de Windows; en Linux se usa el OpenGL ES del sistema (p. ej. Mesa, MIT).
+- En los paquetes de Windows, el runtime de MinGW-w64/GCC (libstdc++ y libgcc con la excepción de
+  runtime de GCC, winpthreads) y zlib. Los textos de estas licencias están en la carpeta licenses/.

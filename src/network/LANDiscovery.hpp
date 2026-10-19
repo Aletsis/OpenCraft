@@ -1,5 +1,7 @@
 #pragma once
 
+#include "network/Socket.hpp"
+
 #include <string>
 #include <vector>
 #include <chrono>
@@ -28,8 +30,8 @@ public:
     const std::vector<DiscoveredServer>& getDiscoveredServers() const noexcept { return m_servers; }
 
 private:
-    int m_broadcastSocket = -1;
-    int m_listenSocket = -1;
+    SocketHandle m_broadcastSocket = INVALID_SOCKET_HANDLE;
+    SocketHandle m_listenSocket = INVALID_SOCKET_HANDLE;
     bool m_isBroadcasting = false;
     bool m_isListening = false;
     uint16_t m_gamePort = 0;

@@ -4,7 +4,7 @@
 #include <vector>
 #include <unordered_map>
 #include <memory>
-#include <netinet/in.h>
+#include "network/Socket.hpp"
 #include "network/NetworkProtocol.hpp"
 #include "network/LANDiscovery.hpp"
 #include "network/NetworkServer.hpp"
@@ -56,7 +56,7 @@ public:
 private:
     bool m_enabled = true; // Habilitado en Fase 09
     NetworkRole m_role = NetworkRole::Singleplayer;
-    int m_socket = -1;
+    Net::SocketHandle m_socket = Net::INVALID_SOCKET_HANDLE;
     sockaddr_in m_serverAddr{};
     uint32_t m_localPlayerID = 0;
     uint32_t m_nextPlayerID = 1;

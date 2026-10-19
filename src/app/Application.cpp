@@ -3,7 +3,7 @@
 #include "core/PngWriter.hpp"
 #include "ui/ItemNames.hpp"
 #include "sim/MobEntity.hpp"
-#include <GLES3/gl3.h>
+#include "render/GL.hpp"
 #include <algorithm>
 #include <chrono>
 #include <cmath>
@@ -100,7 +100,8 @@ Application::Application(const AppConfig& config)
                             .width = config.width,
                             .height = config.height,
                             .vsync = config.vsync,
-                            .fullscreen = config.fullscreen}) {}
+                            .fullscreen = config.fullscreen,
+                            .glBackend = config.glBackend}) {}
 
 Application::~Application() {
     if (m_game) {
@@ -132,7 +133,7 @@ static void importLegacyWorlds(const std::filesystem::path& savesDir) {
             auto target = savesDir / entry.path().filename();
             if (std::filesystem::exists(target, ec)) continue;
             std::filesystem::create_directories(savesDir, ec);
-            std::filesystem::copy(entry.path(), target, std::filesystem::copy_options::recursive, ec);
+            WorldManager::copyDirectoryTree(entry.path(), target, ec);
             std::filesystem::remove(target / "session.lock", ec);
             if (!ec)
                 Log::info("Mundo importado de la versión anterior: {} -> {}", entry.path().string(), target.string());
@@ -191,10 +192,13 @@ bool Application::init() {
     });
     m_lifecycle.setTouchResetCallback([this]() { m_touch.cancelAllFingers(); });
 
-#if defined(__ANDROID__) || defined(__APPLE__)
-    m_touchSeen = true;
-#endif
-    if (PlatformPaths::getPlatformType() == PlatformType::LinuxMobile) m_touchSeen = true;
+    {
+        PlatformType platform = PlatformPaths::getPlatformType();
+        if (platform == PlatformType::LinuxMobile || platform == PlatformType::Android ||
+            platform == PlatformType::iOS) {
+            m_touchSeen = true;
+        }
+    }
 
     if (!m_config.scriptPath.empty() && !loadScript(m_config.scriptPath)) {
         return false;
@@ -1492,7 +1496,11 @@ void Application::takeScreenshot(const std::string& path) {
     if (out.empty()) {
         std::time_t t = std::time(nullptr);
         std::tm tm{};
+#if defined(_WIN32)
+        localtime_s(&tm, &t);
+#else
         localtime_r(&t, &tm);
+#endif
         char name[64];
         std::strftime(name, sizeof(name), "%Y-%m-%d_%H.%M.%S.png", &tm);
         out = PlatformPaths::getUserDataDir() / "screenshots" / name;

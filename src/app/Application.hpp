@@ -45,8 +45,9 @@ struct AppConfig {
     int height = 720;
     bool vsync = true;
     bool fullscreen = false;
-    std::string worldId;         // abrir directamente este mundo
-    std::string createWorldName; // crear y abrir un mundo nuevo
+    std::string glBackend = "auto"; // auto | native | angle (--gl / OPENCRAFT_GL)
+    std::string worldId;            // abrir directamente este mundo
+    std::string createWorldName;    // crear y abrir un mundo nuevo
     std::string createWorldSeed;
     uint32_t createWorldMode = 0;
     bool listWorldsOnly = false;

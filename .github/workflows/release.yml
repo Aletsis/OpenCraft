@@ -67,6 +67,52 @@ jobs:
             ${{ runner.temp }}/dist/*.tar.gz.sha256
           if-no-files-found: error
 
+  windows:
+    name: Windows ${{ matrix.arch }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - arch: x86_64
+            os: windows-2025
+            msystem: UCRT64
+          - arch: arm64
+            os: windows-11-arm
+            msystem: CLANGARM64
+    defaults:
+      run:
+        shell: msys2 {0}
+    env:
+      OPENCRAFT_TIME_BUDGET_SCALE: "3"
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.TAG }}
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{ matrix.msystem }}
+          update: true
+          install: zip
+          pacboy: toolchain:p cmake:p ninja:p sdl3:p angleproject:p
+      - name: Pruebas (Debug)
+        run: |
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug
+          cmake --build build -j"$(nproc)"
+          ctest --test-dir build -j"$(nproc)" --timeout 900 --output-on-failure
+      - name: Compilación Release, paquete y prueba de humo
+        run: |
+          cmake -S . -B build-release -G Ninja -DCMAKE_BUILD_TYPE=Release -DOPENCRAFT_BUILD_TESTS=OFF
+          cmake --build build-release -j"$(nproc)"
+          scripts/ci/package-windows.sh build-release dist ${{ matrix.arch }}
+      - uses: actions/upload-artifact@v7
+        with:
+          name: paquete-windows-${{ matrix.arch }}
+          path: |
+            dist/*.zip
+            dist/*.zip.sha256
+          if-no-files-found: error
+
   macos-server:
     # Experimental: solo el servidor dedicado (el cliente necesita OpenGL ES 3, que macOS no ofrece).
     name: macOS arm64 · servidor (experimental)
@@ -103,8 +149,8 @@ jobs:
 
   publish:
     name: Publicar GitHub Release
-    needs: [linux, macos-server]
-    if: ${{ !cancelled() && needs.linux.result == 'success' }}
+    needs: [linux, windows, macos-server]
+    if: ${{ !cancelled() && needs.linux.result == 'success' && needs.windows.result == 'success' }}
     runs-on: ubuntu-24.04
     permissions:
       contents: write

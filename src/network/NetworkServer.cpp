@@ -1,23 +1,13 @@
 #include "network/NetworkServer.hpp"
+#include "network/Socket.hpp"
 #include <cmath>
 #include "network/PacketValidator.hpp"
 #include "core/Log.hpp"
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <fcntl.h>
 #include <cstring>
 #include <sstream>
 
 namespace OpenCraft::Net {
-
-static bool setNonBlockingFd(int fd) {
-    int flags = fcntl(fd, F_GETFL, 0);
-    if (flags == -1) return false;
-    return fcntl(fd, F_SETFL, flags | O_NONBLOCK) != -1;
-}
 
 NetworkServer::NetworkServer() = default;
 
@@ -26,28 +16,25 @@ NetworkServer::~NetworkServer() { stop(); }
 bool NetworkServer::start(uint16_t port, const std::string& serverName, uint32_t maxPlayers) {
     stop();
 
-    m_socket = socket(AF_INET, SOCK_DGRAM, 0);
-    if (m_socket < 0) {
+    m_socket = openUdpSocket();
+    if (!isValidSocket(m_socket)) {
         Log::error("NetworkServer: Fallo al crear socket UDP");
         return false;
     }
 
-    int reuse = 1;
-    setsockopt(m_socket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
+    setSocketOption(m_socket, SOL_SOCKET, SO_REUSEADDR, 1);
 
     sockaddr_in addr{};
     addr.sin_family = AF_INET;
     addr.sin_port = htons(port);
     addr.sin_addr.s_addr = INADDR_ANY;
 
-    if (bind(m_socket, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) < 0) {
+    if (!bindSocket(m_socket, addr)) {
         Log::error("NetworkServer: Fallo al vincular puerto {}", port);
-        close(m_socket);
-        m_socket = -1;
+        closeSocket(m_socket);
+        m_socket = INVALID_SOCKET_HANDLE;
         return false;
     }
-
-    setNonBlockingFd(m_socket);
 
     m_port = port;
     m_serverName = serverName;
@@ -72,9 +59,9 @@ void NetworkServer::stop() {
         sendRaw(w.data(), w.size(), client.address);
     }
 
-    if (m_socket >= 0) {
-        close(m_socket);
-        m_socket = -1;
+    if (isValidSocket(m_socket)) {
+        closeSocket(m_socket);
+        m_socket = INVALID_SOCKET_HANDLE;
     }
 
     m_clients.clear();
@@ -106,8 +93,8 @@ ServerClientSession* NetworkServer::findClientByName(const std::string& name) {
 }
 
 void NetworkServer::sendRaw(const void* data, size_t size, const sockaddr_in& dest) {
-    if (m_socket < 0 || !data || size == 0) return;
-    sendto(m_socket, data, size, 0, reinterpret_cast<const sockaddr*>(&dest), sizeof(dest));
+    if (!isValidSocket(m_socket) || !data || size == 0) return;
+    sendTo(m_socket, data, size, dest);
 }
 
 bool NetworkServer::kickPlayer(const std::string& name, const std::string& reason) {
@@ -590,17 +577,15 @@ void NetworkServer::handleIncomingPacket(const uint8_t* buffer, size_t size, con
 }
 
 void NetworkServer::update(WorldSession& session, uint64_t currentSimTimeMs) {
-    if (!m_running || m_socket < 0) return;
+    if (!m_running || !isValidSocket(m_socket)) return;
     m_activeSession = &session;
 
     // 1. Drenar socket UDP de entrada
     uint8_t buffer[2048];
     sockaddr_in senderAddr{};
-    socklen_t addrLen = sizeof(senderAddr);
 
     while (true) {
-        ssize_t bytes =
-            recvfrom(m_socket, buffer, sizeof(buffer), 0, reinterpret_cast<sockaddr*>(&senderAddr), &addrLen);
+        long long bytes = recvFrom(m_socket, buffer, sizeof(buffer), senderAddr);
         if (bytes <= 0) break;
         handleIncomingPacket(buffer, static_cast<size_t>(bytes), senderAddr, session, currentSimTimeMs);
     }
