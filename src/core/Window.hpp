@@ -58,7 +58,7 @@ private:
     bool m_shouldClose = false;
     std::string m_glBackendName = "nativo";
 
-    bool createWindowAndContext(bool useAngle);
+    bool createWindowAndContext(const std::string& angleGlesPath); // vacío = controlador nativo
     void destroyWindowAndContext();
 };
 

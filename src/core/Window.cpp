@@ -92,13 +92,10 @@ bool Window::init() {
             SDL_SetHint(SDL_HINT_OPENGL_ES_DRIVER, "1");
             SDL_SetHint(SDL_HINT_EGL_LIBRARY, (*dir / ANGLE_EGL).string().c_str());
 #if defined(_WIN32)
-            // En Windows SDL carga primero la biblioteca OpenGL (WGL) con esta pista, así que no se fija:
-            // libEGL busca libGLESv2.dll en la carpeta indicada aquí
+            // libEGL.dll carga libGLESv2.dll por nombre: debe poder encontrarla en esta carpeta
             SetDllDirectoryW(dir->wstring().c_str());
-#else
-            SDL_SetHint(SDL_HINT_OPENGL_LIBRARY, (*dir / ANGLE_GLES).string().c_str());
 #endif
-            created = createWindowAndContext(true);
+            created = createWindowAndContext((*dir / ANGLE_GLES).string());
             if (!created) {
                 Log::warn("ANGLE no pudo crear el contexto ({}); se usa el controlador nativo", SDL_GetError());
                 destroyWindowAndContext();
@@ -110,7 +107,7 @@ bool Window::init() {
             Log::warn("No se encontró ANGLE ({} y {}); se usa el controlador nativo", ANGLE_EGL, ANGLE_GLES);
         }
     }
-    if (!created && !createWindowAndContext(false)) {
+    if (!created && !createWindowAndContext({})) {
         return false;
     }
 
@@ -129,7 +126,8 @@ bool Window::init() {
     return true;
 }
 
-bool Window::createWindowAndContext(bool useAngle) {
+bool Window::createWindowAndContext(const std::string& angleGlesPath) {
+    const bool useAngle = !angleGlesPath.empty();
     // Configurar atributos de contexto OpenGL ES 3.0
     SDL_GL_ResetAttributes();
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
@@ -149,6 +147,9 @@ bool Window::createWindowAndContext(bool useAngle) {
         return false;
     }
 
+    // SDL lee SDL_HINT_OPENGL_LIBRARY dos veces: al crear la ventana carga con ella GLX/WGL (y fallaría con
+    // ANGLE) y al crear el contexto ES la usa como biblioteca GLES de EGL. Por eso se fija justo aquí.
+    if (useAngle) SDL_SetHint(SDL_HINT_OPENGL_LIBRARY, angleGlesPath.c_str());
     m_glContext = SDL_GL_CreateContext(m_window);
     if (!m_glContext) {
         Log::error("Fallo al crear el contexto OpenGL ES 3.0: {}", SDL_GetError());
