@@ -1,0 +1,12 @@
+OpenCraft
+Copyright 2026 Alexis Barron
+
+Este producto se distribuye bajo la Licencia Apache, versión 2.0 (archivo LICENSE).
+
+OpenCraft es un proyecto independiente. No está afiliado, patrocinado ni aprobado por Mojang Studios
+ni por Microsoft. Todas las texturas se generan proceduralmente y todos los sonidos se sintetizan en
+el propio programa; OpenCraft no incluye recursos, código ni marcas de terceros.
+
+Componentes de terceros enlazados dinámicamente (no incluidos en este repositorio):
+- SDL3 (https://libsdl.org), licencia zlib.
+- Implementación de OpenGL ES del sistema (p. ej. Mesa, licencia MIT).

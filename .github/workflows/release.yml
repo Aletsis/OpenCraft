@@ -1,0 +1,147 @@
+# Publicación: al subir una etiqueta vX.Y.Z (o vX.Y.Z-rcN) se compila, se verifica y se publica una
+# GitHub Release con los paquetes de cada plataforma y sus sumas SHA-256.
+#
+#   git tag -a v1.0.0-rc1 -m "OpenCraft 1.0.0-rc1" && git push origin v1.0.0-rc1
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Etiqueta existente que se quiere (re)publicar, p. ej. v1.0.0-rc1"
+        required: true
+
+permissions:
+  contents: read
+
+env:
+  SDL3_VERSION: "3.4.18"
+  SDL3_PREFIX: ${{ github.workspace }}/.deps/sdl3
+  TAG: ${{ inputs.tag || github.ref_name }}
+
+jobs:
+  linux:
+    name: Linux ${{ matrix.arch }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - arch: x86_64
+            os: ubuntu-24.04
+          - arch: aarch64
+            os: ubuntu-24.04-arm
+    env:
+      CC: gcc-14
+      CXX: g++-14
+      OPENCRAFT_TIME_BUDGET_SCALE: "3"
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.TAG }}
+      - name: Caché de SDL3
+        uses: actions/cache@v6
+        with:
+          path: .deps/sdl3
+          key: sdl3-${{ env.SDL3_VERSION }}-${{ runner.os }}-${{ runner.arch }}-v1
+      - name: Dependencias
+        run: scripts/ci/install-deps-linux.sh "$SDL3_PREFIX"
+      - name: Pruebas, compilación Release, prueba de humo y paquete
+        env:
+          CMAKE_PREFIX_PATH: ${{ env.SDL3_PREFIX }}
+        run: scripts/build_release_candidate.sh "$RUNNER_TEMP/dist"
+      - name: La etiqueta coincide con la versión de CMake
+        run: |
+          version="$(cat "$RUNNER_TEMP/dist/build-release/version.txt")"
+          if [[ "v$version" != "$TAG" ]]; then
+            echo "::error::La etiqueta $TAG no coincide con la versión del proyecto ($version)"
+            exit 1
+          fi
+      - uses: actions/upload-artifact@v7
+        with:
+          name: paquete-linux-${{ matrix.arch }}
+          path: |
+            ${{ runner.temp }}/dist/*.tar.gz
+            ${{ runner.temp }}/dist/*.tar.gz.sha256
+          if-no-files-found: error
+
+  macos-server:
+    # Experimental: solo el servidor dedicado (el cliente necesita OpenGL ES 3, que macOS no ofrece).
+    name: macOS arm64 · servidor (experimental)
+    runs-on: macos-15
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.TAG }}
+      - run: brew install ninja
+      - name: Pruebas
+        run: |
+          cmake -S . -B build-debug -G Ninja -DCMAKE_BUILD_TYPE=Debug -DOPENCRAFT_BUILD_CLIENT=OFF
+          cmake --build build-debug -j"$(sysctl -n hw.ncpu)"
+          OPENCRAFT_TIME_BUDGET_SCALE=3 ctest --test-dir build-debug -j"$(sysctl -n hw.ncpu)" --timeout 900 --output-on-failure
+      - name: Compilación Release y paquete
+        run: |
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DOPENCRAFT_BUILD_CLIENT=OFF -DOPENCRAFT_BUILD_TESTS=OFF
+          cmake --build build -j"$(sysctl -n hw.ncpu)"
+          version="$(cat build/version.txt)"
+          pkg="opencraft-server-${version}-macos-arm64"
+          mkdir -p "dist/$pkg/bin"
+          cp build/opencraft_server "dist/$pkg/bin/"
+          cp LICENSE NOTICE README.md CHANGELOG.md "dist/$pkg/"
+          "dist/$pkg/bin/opencraft_server" --help > /dev/null
+          tar -C dist -czf "dist/$pkg.tar.gz" "$pkg"
+          (cd dist && shasum -a 256 "$pkg.tar.gz" > "$pkg.tar.gz.sha256")
+      - uses: actions/upload-artifact@v7
+        with:
+          name: paquete-macos-arm64
+          path: |
+            dist/*.tar.gz
+            dist/*.tar.gz.sha256
+
+  publish:
+    name: Publicar GitHub Release
+    needs: [linux, macos-server]
+    if: ${{ !cancelled() && needs.linux.result == 'success' }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.TAG }}
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: paquete-*
+          path: paquetes
+          merge-multiple: true
+      - name: Notas de la versión (sección del CHANGELOG)
+        run: |
+          version="${TAG#v}"
+          awk -v v="$version" '
+            $0 ~ "^## \\[" v "\\]" { on = 1; next }
+            on && /^## \[/ { exit }
+            on { print }
+          ' CHANGELOG.md > notas.md
+          test -s notas.md || echo "OpenCraft $version" > notas.md
+          {
+            echo
+            echo "### Sumas SHA-256"
+            echo '```'
+            cat paquetes/*.sha256
+            echo '```'
+          } >> notas.md
+      - name: Crear o actualizar la release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          prerelease=""
+          [[ "$TAG" == *-* ]] && prerelease="--prerelease"
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release upload "$TAG" paquetes/* --clobber
+            gh release edit "$TAG" --notes-file notas.md $prerelease
+          else
+            gh release create "$TAG" paquetes/* --title "OpenCraft ${TAG#v}" --notes-file notas.md --verify-tag $prerelease
+          fi

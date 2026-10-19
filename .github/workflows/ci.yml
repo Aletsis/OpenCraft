@@ -1,0 +1,139 @@
+# Integración continua: se ejecuta en cada push y en cada pull request.
+# Cada trabajo llama a los mismos scripts que se usan en local (scripts/format.sh, scripts/ci/*.sh).
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+    tags-ignore: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  SDL3_VERSION: "3.4.18"
+  SDL3_PREFIX: ${{ github.workspace }}/.deps/sdl3
+
+jobs:
+  format:
+    name: Formato (clang-format)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: pip install -r scripts/requirements-ci.txt
+      - run: scripts/format.sh --check
+
+  build-test:
+    name: Compilación y pruebas (${{ matrix.name }})
+    needs: format
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux x86_64 · GCC 14
+            os: ubuntu-24.04
+            cc: gcc-14
+            cxx: g++-14
+          - name: Linux x86_64 · Clang 18
+            os: ubuntu-24.04
+            cc: clang-18
+            cxx: clang++-18
+          - name: Linux arm64 · GCC 14
+            os: ubuntu-24.04-arm
+            cc: gcc-14
+            cxx: g++-14
+    env:
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Caché de SDL3
+        uses: actions/cache@v6
+        with:
+          path: .deps/sdl3
+          key: sdl3-${{ env.SDL3_VERSION }}-${{ runner.os }}-${{ runner.arch }}-v1
+      - name: Dependencias
+        run: scripts/ci/install-deps-linux.sh "$SDL3_PREFIX"
+      - name: Configurar
+        run: >
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug
+          -DCMAKE_PREFIX_PATH="$SDL3_PREFIX"
+          -DCMAKE_COMPILE_WARNING_AS_ERROR=OFF
+      - name: Compilar (cliente, servidor y pruebas)
+        run: cmake --build build -j"$(nproc)"
+      - name: Pruebas
+        run: ctest --test-dir build -j"$(nproc)" --timeout 900 --output-on-failure
+
+  sanitizers:
+    name: ASan + UBSan
+    needs: format
+    runs-on: ubuntu-24.04
+    env:
+      CC: gcc-14
+      CXX: g++-14
+      ASAN_OPTIONS: detect_leaks=1:abort_on_error=1:strict_string_checks=1
+      UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
+      OPENCRAFT_TIME_BUDGET_SCALE: "20"
+    steps:
+      - uses: actions/checkout@v7
+      - name: Dependencias
+        run: SKIP_SDL3=1 scripts/ci/install-deps-linux.sh
+      - name: Configurar
+        run: >
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DOPENCRAFT_BUILD_CLIENT=OFF
+          -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=undefined"
+          -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address,undefined"
+      - run: cmake --build build -j"$(nproc)"
+      - run: ctest --test-dir build -j"$(nproc)" --timeout 1800 --output-on-failure
+
+  coverage:
+    name: Cobertura (mínimo 80 %)
+    needs: format
+    runs-on: ubuntu-24.04
+    env:
+      CC: gcc-14
+      CXX: g++-14
+      GCOV: gcov-14
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: pip install -r scripts/requirements-ci.txt
+      - name: Dependencias
+        run: SKIP_SDL3=1 scripts/ci/install-deps-linux.sh
+      - name: Cobertura de líneas
+        run: scripts/ci/coverage.sh build-coverage
+      - name: Resumen
+        if: always()
+        run: cat build-coverage/coverage/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+      - name: Informe HTML
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: cobertura
+          path: build-coverage/coverage/
+          retention-days: 14
+
+  macos-server:
+    # El cliente gráfico usa OpenGL ES 3, que macOS no ofrece; aquí se valida el servidor y la suite.
+    name: macOS arm64 · servidor y pruebas (experimental)
+    needs: format
+    runs-on: macos-15
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v7
+      - run: brew install ninja
+      - run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DOPENCRAFT_BUILD_CLIENT=OFF
+      - run: cmake --build build -j"$(sysctl -n hw.ncpu)"
+      - run: ctest --test-dir build -j"$(sysctl -n hw.ncpu)" --timeout 900 --output-on-failure

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.opencraft.OpenCraft</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>Apache-2.0</project_license>
+  <developer id="io.github.opencraft">
+    <name>Alexis Barron</name>
+  </developer>
+  <name>OpenCraft</name>
+  <summary>Lightweight voxel sandbox game for desktop and mobile Linux</summary>
+  <description>
+    <p>
+      OpenCraft is a lightweight, deterministic voxel sandbox written in modern C++20.
+      It features survival and creative modes, mining, crafting, farming, cinnabar automation,
+      infinite multi-biome generation, dimensions, a dedicated server and multi-touch controls
+      for mobile Linux devices.
+    </p>
+  </description>
+  <launchable type="desktop-id">opencraft.desktop</launchable>
+  <url type="homepage">https://github.com/OpenCraft/OpenCraft</url>
+  <provides>
+    <binary>opencraft</binary>
+    <binary>opencraft_server</binary>
+  </provides>
+  <categories>
+    <category>Game</category>
+    <category>Simulation</category>
+  </categories>
+  <releases>
+    <release version="1.0.0-rc1" date="2026-10-18" type="development">
+      <description>
+        <p>First release candidate: world menu, HUD and inventory, real lighting, sound and creature rendering.</p>
+      </description>
+    </release>
+  </releases>
+</component>

@@ -1,0 +1,157 @@
+id,familia,elemento,version,fuente,comportamiento_esperado,equivalente_opencraft,fase,estado,prueba
+BLK-001,Construcción,Aire,Java 1.21,wiki-comunitaria,Bloque vacío transparente sin colisión,opencraft:air,F01,Completado,BlockRegistryTest
+BLK-002,Construcción,Hierba,Java 1.21,wiki-comunitaria,Bloque sólido con capa superior de tierra vegetal,opencraft:grass_block,F01,Completado,BlockRegistryTest
+BLK-003,Construcción,Tierra,Java 1.21,wiki-comunitaria,Bloque sólido excavable con pala,opencraft:dirt,F01,Completado,BlockRegistryTest
+BLK-004,Construcción,Piedra,Java 1.21,wiki-comunitaria,Bloque sólido de roca que genera adoquín al minar,opencraft:stone,F01,Completado,BlockRegistryTest
+BLK-005,Construcción,Adoquín,Java 1.21,wiki-comunitaria,Bloque de roca fragmentada resistente,opencraft:cobblestone,F01,Completado,BlockRegistryTest
+BLK-006,Construcción,Madera de Roble,Java 1.21,wiki-comunitaria,Tronco de árbol talable con hacha,opencraft:wood_log,F01,Completado,BlockRegistryTest
+BLK-007,Construcción,Tablones de Roble,Java 1.21,wiki-comunitaria,Bloque de madera procesada para construcción,opencraft:planks,F01,Completado,BlockRegistryTest
+BLK-008,Construcción,Hojas de Roble,Java 1.21,wiki-comunitaria,Follaje translúcido rompible con cizallas/mano,opencraft:leaves,F01,Completado,BlockRegistryTest
+BLK-009,Construcción,Arena,Java 1.21,wiki-comunitaria,Sólido granular afectado por gravedad,opencraft:sand,F01,Completado,BlockRegistryTest
+BLK-010,Construcción,Vidrio,Java 1.21,wiki-comunitaria,Bloque transparente que deja pasar luz sin filtrar,opencraft:glass,F01,Completado,BlockRegistryTest
+BLK-011,Construcción,Roca Madre,Java 1.21,wiki-comunitaria,Bloque indestructible que delimita el fondo del mundo,opencraft:bedrock,F01,Completado,BlockRegistryTest
+BLK-012,Fluidos,Agua Estacionaria,Java 1.21,wiki-comunitaria,Fluido que amortigua caídas y extingue fuego,opencraft:water,F07,Completado,FluidFlowAndInteractionTest
+BLK-013,Fluidos,Agua Corriente,Java 1.21,wiki-comunitaria,Flujo de agua con arrastre físico de entidades,opencraft:flowing_water,F07,Completado,FluidFlowAndInteractionTest
+BLK-014,Fluidos,Lava Estacionaria,Java 1.21,wiki-comunitaria,Fluido ígneo que emite luz 15 e incinera entidades,opencraft:lava,F07,Completado,FluidFlowAndInteractionTest
+BLK-015,Fluidos,Lava Corriente,Java 1.21,wiki-comunitaria,Flujo viscoso de lava que forma adoquín/obsidiana al tocar agua,opencraft:flowing_lava,F07,Completado,FluidFlowAndInteractionTest
+BLK-016,Construcción,Obsidiana,Java 1.21,wiki-comunitaria,Roca volcánica de alta dureza generadora de portales,opencraft:obsidian,F05,Completado,ProductionChainTest
+BLK-017,Iluminación,Antorcha,Java 1.21,wiki-comunitaria,Fuente de luz de bloque con nivel de emisión 14,opencraft:torch,F07,Completado,LightingAndPropagationTest
+BLK-018,Mecánicas,Fuego,Java 1.21,wiki-comunitaria,Bloque dañino propagable que calcina materiales combustibles,opencraft:fire,F07,Completado,ImmersionAndEnvironmentalHazardsTest
+BLK-019,Contenedores,Cofre,Java 1.21,wiki-comunitaria,Contenedor de 27 casillas con persistencia transaccional,opencraft:chest,F04,Completado,ChestTransactionsTest
+BLK-020,Fabricación,Mesa de Crafteo,Java 1.21,wiki-comunitaria,Estación de trabajo con cuadrícula de 3x3 casillas,opencraft:crafting_table,F05,Completado,ProductionChainTest
+BLK-021,Fabricación,Horno,Java 1.21,wiki-comunitaria,Estación de fundición con consumo de combustible y cocción,opencraft:furnace,F05,Completado,FurnaceSimulationPersistenceTest
+BLK-022,Minerales,Mena de Carbón,Java 1.21,wiki-comunitaria,Mena subterránea que suelta carbón vegetal/mineral,opencraft:coal_ore,F05,Completado,ToolDurabilityAndMiningTest
+BLK-023,Minerales,Mena de Hierro,Java 1.21,wiki-comunitaria,Mena que requiere fundición para obtener lingotes,opencraft:iron_ore,F05,Completado,ToolDurabilityAndMiningTest
+BLK-024,Mecánicas,Cama,Java 1.21,wiki-comunitaria,Punto de reaparición y descanso nocturno,opencraft:bed,F06,Completado,BedAndGameModesTest
+BLK-025,Agricultura,Tierra de Cultivo,Java 1.21,wiki-comunitaria,Tierra arada hidratada por agua cercana para cultivos,opencraft:farmland,F10,Completado,AgricultureGrowthAndRenewableCycleTest
+BLK-026,Agricultura,Cultivo de Trigo,Java 1.21,wiki-comunitaria,Cultivo con 8 etapas de maduración fotosintética,opencraft:wheat_crops,F10,Completado,AgricultureGrowthAndRenewableCycleTest
+BLK-027,Agricultura,Cultivo de Zanahorias,Java 1.21,wiki-comunitaria,Cultivo vegetal comestible y multiplicable,opencraft:carrots,F10,Completado,AgricultureGrowthAndRenewableCycleTest
+BLK-028,Agricultura,Cultivo de Patatas,Java 1.21,wiki-comunitaria,Cultivo vegetal que produce patatas normales y venenosas,opencraft:potatoes,F10,Completado,AgricultureGrowthAndRenewableCycleTest
+BLK-029,Nieve,Capa de Nieve,Java 1.21,wiki-comunitaria,Capa acumulable de nieve en biomas fríos,opencraft:snow,F07,Completado,ScheduledUpdatesAndWeatherTest
+BLK-030,Nieve,Bloque de Nieve,Java 1.21,wiki-comunitaria,Cubo de nieve compactada obtenida con bolas de nieve,opencraft:snow_block,F05,Completado,BlockRegistryTest
+BLK-031,Hielo,Hielo,Java 1.21,wiki-comunitaria,Superficie resbaladiza que se derrite cerca de fuentes de calor,opencraft:ice,F07,Completado,ScheduledUpdatesAndWeatherTest
+BLK-032,Construcción,Arenisca,Java 1.21,wiki-comunitaria,Bloque sedimentario de los desiertos,opencraft:sandstone,F10,Completado,BlockRegistryTest
+BLK-033,Construcción,Grava,Java 1.21,wiki-comunitaria,Bloque sedimentario con gravedad que suelta pedernal,opencraft:gravel,F05,Completado,ToolDurabilityAndMiningTest
+BLK-034,Minerales,Mena de Oro,Java 1.21,wiki-comunitaria,Mena valiosa para armaduras y lingotes,opencraft:gold_ore,F05,Completado,ToolDurabilityAndMiningTest
+BLK-035,Minerales,Mena de Diamante,Java 1.21,wiki-comunitaria,Mena subterránea profunda de máximo nivel de herramienta,opencraft:diamond_ore,F05,Completado,ToolDurabilityAndMiningTest
+BLK-036,Minerales,Mena de Esmeralda,Java 1.21,wiki-comunitaria,Mena exclusiva de bioma de montañas para comercio,opencraft:emerald_ore,F10,Completado,StructuresAndMultiChunkDeterminismTest
+BLK-037,Construcción,Adoquín Musgoso,Java 1.21,wiki-comunitaria,Variante de mazmorras y ruinas húmedas,opencraft:mossy_cobblestone,F10,Completado,BlockRegistryTest
+BLK-038,Mecánicas,Generador de Monstruos,Java 1.21,wiki-comunitaria,Generador de criaturas en mazmorras subterráneas,opencraft:monster_spawner,F08,Completado,MobSpawningAndLightRulesTest
+BLK-039,Aldeanos,Compostador,Java 1.21,wiki-comunitaria,Bloque de trabajo de Granjero y reciclador orgánico,opencraft:composter,F10,Completado,VillagerEconomyAndConcurrentTradeTest
+BLK-040,Aldeanos,Atril,Java 1.21,wiki-comunitaria,Bloque de trabajo de Bibliotecario para encantos,opencraft:lectern,F10,Completado,VillagerEconomyAndConcurrentTradeTest
+BLK-041,Cinabrio,Cable de Cinabrio,Java 1.21,wiki-comunitaria,Conductor de señal analógica 0 a 15 con atenuación,opencraft:cinnabar_wire,F11,Completado,RedstoneLogicAndTimingTest
+BLK-042,Cinabrio,Bloque de Cinabrio,Java 1.21,wiki-comunitaria,Fuente constante de señal nivel 15 movible por pistones,opencraft:cinnabar_block,F11,Completado,RedstoneLogicAndTimingTest
+BLK-043,Cinabrio,Antorcha de Cinabrio,Java 1.21,wiki-comunitaria,Inversor lógico de señal con retardo de 2 ticks (1 tick cinabrio),opencraft:cinnabar_torch,F11,Completado,RedstoneLogicAndTimingTest
+BLK-044,Cinabrio,Repetidor de Cinabrio,Java 1.21,wiki-comunitaria,Amplificador unidireccional con retardo configurable (1-4 ticks),opencraft:repeater,F11,Completado,RedstoneLogicAndTimingTest
+BLK-045,Cinabrio,Comparador de Cinabrio,Java 1.21,wiki-comunitaria,Comparación/sustracción analógica y lectura de contenedores,opencraft:comparator,F11,Completado,RedstoneLogicAndTimingTest
+BLK-046,Cinabrio,Palanca,Java 1.21,wiki-comunitaria,Interruptor biestable de señal fuerte manual,opencraft:lever,F11,Completado,RedstoneLogicAndTimingTest
+BLK-047,Cinabrio,Botón de Piedra,Java 1.21,wiki-comunitaria,Pulsador momentáneo de 20 ticks (1 segundo),opencraft:stone_button,F11,Completado,RedstoneLogicAndTimingTest
+BLK-048,Cinabrio,Botón de Roble,Java 1.21,wiki-comunitaria,Pulsador momentáneo de 30 ticks (1.5 segundos),opencraft:oak_button,F11,Completado,RedstoneLogicAndTimingTest
+BLK-049,Cinabrio,Placa de Presión,Java 1.21,wiki-comunitaria,Activador por detección física de entidades/jugadores,opencraft:pressure_plate,F11,Completado,RedstoneLogicAndTimingTest
+BLK-050,Cinabrio,Sensor de Luz Diurna,Java 1.21,wiki-comunitaria,Emite señal analógica proporcional a la luz solar del cielo,opencraft:daylight_detector,F11,Completado,RedstoneLogicAndTimingTest
+BLK-051,Cinabrio,Lámpara de Cinabrio,Java 1.21,wiki-comunitaria,Lámpara que se enciende con emisión 15 al recibir señal,opencraft:cinnabar_lamp,F11,Completado,RedstoneLogicAndTimingTest
+BLK-052,Cinabrio,Puerta de Hierro,Java 1.21,wiki-comunitaria,Puerta que solo responde a activación de cinabrio,opencraft:iron_door,F11,Completado,RedstoneLogicAndTimingTest
+BLK-053,Mecánicas,Puerta de Roble,Java 1.21,wiki-comunitaria,Puerta de madera con apertura manual o por señal,opencraft:oak_door,F11,Completado,RedstoneLogicAndTimingTest
+BLK-054,Mecánicas,Pistón,Java 1.21,wiki-comunitaria,Mecanismo que empuja hasta 12 bloques no inamovibles,opencraft:piston,F11,Completado,PistonsAndBlockMovementTest
+BLK-055,Mecánicas,Pistón Pegajoso,Java 1.21,wiki-comunitaria,Pistón que empuja y retrae el bloque adyacente,opencraft:sticky_piston,F11,Completado,PistonsAndBlockMovementTest
+BLK-056,Automatización,Tolva,Java 1.21,wiki-comunitaria,Transfiere ítems cada 8 ticks y absorbe del mundo,opencraft:hopper,F11,Completado,HoppersDroppersAndCrafterTest
+BLK-057,Automatización,Soltador,Java 1.21,wiki-comunitaria,Expulsa ítems como entidades físicas al recibir señal,opencraft:dropper,F11,Completado,HoppersDroppersAndCrafterTest
+BLK-058,Automatización,Dispensador,Java 1.21,wiki-comunitaria,Dispara proyectiles o aplica acciones especiales al recibir señal,opencraft:dispenser,F11,Completado,HoppersDroppersAndCrafterTest
+BLK-059,Automatización 1.21,Crafter,Java 1.21,notas-oficiales,Fabricador automático de 9 ranuras bloqueables con señal,opencraft:crafter,F11,Completado,HoppersDroppersAndCrafterTest
+BLK-060,Transporte,Riel Normal,Java 1.21,wiki-comunitaria,Vía férrea pasiva con enlace direccional de tramos,opencraft:rail,F11,Completado,RailsAndMinecartTransportTest
+BLK-061,Transporte,Riel Propulsor,Java 1.21,wiki-comunitaria,Acelera vagonetas al encenderse o frena si está apagado,opencraft:powered_rail,F11,Completado,RailsAndMinecartTransportTest
+BLK-062,Transporte,Riel Detector,Java 1.21,wiki-comunitaria,Emite señal cinabrio al pasar una vagoneta sobre él,opencraft:detector_rail,F11,Completado,RailsAndMinecartTransportTest
+BLK-063,Transporte,Riel Activador,Java 1.21,wiki-comunitaria,Desmonta pasajeros de vagonetas al activarse con señal,opencraft:activator_rail,F11,Completado,RailsAndMinecartTransportTest
+BLK-064,Abismo,Roca abisal,Java 1.21,wiki-comunitaria,Roca del inframundo que arde perpetuamente,opencraft:abyssal_rock,F12,Completado,DimensionsPortalsAndStorageTest
+BLK-065,Abismo,Arena de Almas,Java 1.21,wiki-comunitaria,Ralentiza el movimiento de entidades y asciende burbujas de agua,opencraft:soul_sand,F12,Completado,DimensionsPortalsAndStorageTest
+BLK-066,Abismo,Tierra de Almas,Java 1.21,wiki-comunitaria,Suelo del valle de arena de almas para fuego azul,opencraft:soul_soil,F12,Completado,DimensionsPortalsAndStorageTest
+BLK-067,Abismo,Mena de Cuarzo del Abismo,Java 1.21,wiki-comunitaria,Mena que suelta cristales de cuarzo para comparadores,opencraft:abyssal_quartz_ore,F12,Completado,DimensionsPortalsAndStorageTest
+BLK-068,Abismo,Piedra Luminosa,Java 1.21,wiki-comunitaria,Bloque luminoso del techo del Abismo que emite luz 15,opencraft:glow_rock,F12,Completado,DimensionsPortalsAndStorageTest
+BLK-069,Abismo,Escombros Ancestrales,Java 1.21,wiki-comunitaria,Material altamente resistente al fuego y explosiones para oricalco,opencraft:orichalcum_vein,F12,Completado,DimensionsPortalsAndStorageTest
+BLK-070,End,Piedra del Confín,Java 1.21,wiki-comunitaria,Material constitutivo de la dimensión del Confín,opencraft:rim_stone,F12,Completado,DimensionsPortalsAndStorageTest
+BLK-071,End,Pilar de Obsidiana,Java 1.21,wiki-comunitaria,Columna de combate para sostén de cristales del dragón,opencraft:obsidian_pillar,F12,Completado,BossesDragonWitherAndBeaconTest
+BLK-072,Alquimia,Soporte para Pociones,Java 1.21,wiki-comunitaria,Estación de destilación de 3 frascos con polvo de ígneo,opencraft:brewing_stand,F12,Completado,AlchemyPotionsAndEffectsTest
+BLK-073,Progresión,Faro,Java 1.21,wiki-comunitaria,Estructura piramidal con haz celeste y efectos de área,opencraft:beacon,F12,Completado,BossesDragonWitherAndBeaconTest
+BLK-074,Dimensiones,Portal del Abismo,Java 1.21,wiki-comunitaria,Marco de obsidiana activable que transporta al Abismo (1:8),opencraft:abyss_portal,F12,Completado,DimensionsPortalsAndStorageTest
+BLK-075,Dimensiones,Marco del Portal del Confín,Java 1.21,wiki-comunitaria,Marco indestructible activable con 12 ojos del Confín,opencraft:rim_portal_frame,F12,Completado,DimensionsPortalsAndStorageTest
+BLK-076,Dimensiones,Portal del Confín,Java 1.21,wiki-comunitaria,Transporta instantáneamente al centro de la isla del Confín,opencraft:rim_portal,F12,Completado,DimensionsPortalsAndStorageTest
+BLK-077,Jefes,Huevo de Dragón,Java 1.21,wiki-comunitaria,Trofeo de victoria que se teletransporta al tocarlo,opencraft:dragon_egg,F12,Completado,BossesDragonWitherAndBeaconTest
+BLK-078,Comandos,Bloque de Comandos,Java 1.21,wiki-comunitaria,Ejecutor de comandos en modo Impulso por cinabrio,opencraft:command_block,F13,Completado,CommandBlocksAndFunctionBudgetTest
+BLK-079,Comandos,Bloque de Comandos Repetidor,Java 1.21,wiki-comunitaria,Ejecuta comandos cada tick mientras esté encendido,opencraft:repeating_command_block,F13,Completado,CommandBlocksAndFunctionBudgetTest
+BLK-080,Comandos,Bloque de Comandos en Cadena,Java 1.21,wiki-comunitaria,Propaga ejecución en cadena tras bloque anterior,opencraft:chain_command_block,F13,Completado,CommandBlocksAndFunctionBudgetTest
+BLK-081,Contenido 1.21,Bloque de Cobre,Java 1.21,notas-oficiales,Bloque metálico decorativo fabricable con lingotes de cobre,opencraft:copper_block,F15,Completado,test_trial_chambers_and_content_1_21
+BLK-082,Contenido 1.21,Cobre Cortado,Java 1.21,notas-oficiales,Variante en losas/bloques cortados de cobre,opencraft:cut_copper,F15,Completado,test_trial_chambers_and_content_1_21
+BLK-083,Contenido 1.21,Cobre Cincelado,Java 1.21,notas-oficiales,Bloque decorativo con relieve grabado de cobre,opencraft:chiseled_copper,F15,Completado,test_trial_chambers_and_content_1_21
+BLK-084,Contenido 1.21,Rejilla de Cobre,Java 1.21,notas-oficiales,Bloque translúcido que deja pasar luz pero bloquea paso,opencraft:copper_grate,F15,Completado,test_trial_chambers_and_content_1_21
+BLK-085,Contenido 1.21,Bombilla de Cobre,Java 1.21,notas-oficiales,Lámpara biestable de cinabrio activable por pulso,opencraft:copper_bulb,F15,Completado,test_trial_chambers_and_content_1_21
+BLK-086,Contenido 1.21,Toba,Java 1.21,notas-oficiales,Roca volcánica gris hallada en las profundidades y Trial Chambers,opencraft:tuff,F15,Completado,test_trial_chambers_and_content_1_21
+BLK-087,Contenido 1.21,Ladrillos de Toba,Java 1.21,notas-oficiales,Bloque arquitectónico estructural de las Cámaras de Pruebas,opencraft:tuff_bricks,F15,Completado,test_trial_chambers_and_content_1_21
+BLK-088,Contenido 1.21,Toba Cincelada,Java 1.21,notas-oficiales,Variante con detalles labrados para cámaras y pilares,opencraft:chiseled_tuff,F15,Completado,test_trial_chambers_and_content_1_21
+BLK-089,Contenido 1.21,Generador de Pruebas (Trial Spawner),Java 1.21,notas-oficiales,Spawnea oleadas de criaturas; otorga llaves y premios al vencerlas,opencraft:trial_spawner,F15,Completado,test_trial_chambers_and_content_1_21
+BLK-090,Contenido 1.21,Bóveda (Vault),Java 1.21,notas-oficiales,Cofre interactivo desbloqueable con llaves de prueba una vez por jugador,opencraft:vault,F15,Completado,test_trial_chambers_and_content_1_21
+BLK-091,Decoración,Cartel de Roble,Java 1.21,wiki-comunitaria,Elemento con texto orientable en paredes o suelo,opencraft:oak_sign,F15,Completado,test_trial_chambers_and_content_1_21
+BLK-092,Decoración,Vasija Decorada,Java 1.21,wiki-comunitaria,Contenedor cerámico arqueológico para almacenamiento,opencraft:decorated_pot,F15,Completado,test_trial_chambers_and_content_1_21
+ITM-001,Herramientas,Pico de Madera,Java 1.21,wiki-comunitaria,Herramienta básica para minar piedra y carbón,opencraft:wooden_pickaxe,F05,Completado,ToolDurabilityAndMiningTest
+ITM-002,Herramientas,Pico de Piedra,Java 1.21,wiki-comunitaria,Herramienta para minar hierro y cobre,opencraft:stone_pickaxe,F05,Completado,ToolDurabilityAndMiningTest
+ITM-003,Herramientas,Pico de Hierro,Java 1.21,wiki-comunitaria,"Herramienta para minar oro, diamante y cinabrio",opencraft:iron_pickaxe,F05,Completado,ToolDurabilityAndMiningTest
+ITM-004,Herramientas,Pico de Diamante,Java 1.21,wiki-comunitaria,Herramienta para minar obsidiana y escombros ancestrales,opencraft:diamond_pickaxe,F05,Completado,ToolDurabilityAndMiningTest
+ITM-005,Herramientas,Pico de Oricalco,Java 1.21,wiki-comunitaria,Herramienta indestructible al fuego con durabilidad 2031,opencraft:orichalcum_pickaxe,F12,Completado,EnchantingAnvilAndProgressionGraphTest
+ITM-006,Armamento,Espada de Madera,Java 1.21,wiki-comunitaria,Arma cuerpo a cuerpo básica (daño 4.0),opencraft:wooden_sword,F05,Completado,ProductionChainTest
+ITM-007,Armamento,Espada de Diamante,Java 1.21,wiki-comunitaria,Arma cuerpo a cuerpo avanzada (daño 7.0),opencraft:diamond_sword,F05,Completado,ProductionChainTest
+ITM-008,Armamento,Espada de Oricalco,Java 1.21,wiki-comunitaria,Arma cuerpo a cuerpo máxima (daño 8.0),opencraft:orichalcum_sword,F12,Completado,EnchantingAnvilAndProgressionGraphTest
+ITM-009,Armamento 1.21,Maza (Mace),Java 1.21,notas-oficiales,Arma pesada con Smash Attack que anula caída y escala daño con altura,opencraft:mace,F15,Completado,test_trial_chambers_and_content_1_21
+ITM-010,Contenido 1.21,Vara de Brisa,Java 1.21,notas-oficiales,Drop del Torbellino para craftear la Maza y cargas de viento,opencraft:whirl_rod,F15,Completado,test_trial_chambers_and_content_1_21
+ITM-011,Contenido 1.21,Carga de Viento,Java 1.21,notas-oficiales,Proyectil disparable que causa explosión de viento y super-salto,opencraft:wind_charge,F15,Completado,test_trial_chambers_and_content_1_21
+ITM-012,Contenido 1.21,Llave de Prueba,Java 1.21,notas-oficiales,Llave obtenida de Trial Spawners para abrir bóvedas Vault,opencraft:trial_key,F15,Completado,test_trial_chambers_and_content_1_21
+ITM-013,Contenido 1.21,Llave de Prueba Siniestra,Java 1.21,notas-oficiales,Llave siniestra para abrir bóvedas siniestras con premios raros,opencraft:ominous_trial_key,F15,Completado,test_trial_chambers_and_content_1_21
+ITM-014,Contenido 1.21,Núcleo Pesado (Heavy Core),Java 1.21,notas-oficiales,Componente superior de la Maza obtenido en bóvedas de prueba,opencraft:heavy_core,F15,Completado,test_trial_chambers_and_content_1_21
+ITM-015,Transporte,Barco,Java 1.21,wiki-comunitaria,Vehículo acuático sin daño por caída en agua,opencraft:boat,F11,Completado,MobArchetypesAndPersistenceTest
+ITM-016,Transporte,Vagoneta,Java 1.21,wiki-comunitaria,Vehículo terrestre guiado por rieles para entidades,opencraft:minecart,F11,Completado,RailsAndMinecartTransportTest
+ITM-017,Transporte,Vagoneta con Cofre,Java 1.21,wiki-comunitaria,Vagoneta con inventario móvil autónomo,opencraft:chest_minecart,F11,Completado,RailsAndMinecartTransportTest
+ITM-018,Transporte,Vagoneta con Tolva,Java 1.21,wiki-comunitaria,Vagoneta que aspira ítems a través de rieles a alta velocidad,opencraft:hopper_minecart,F11,Completado,RailsAndMinecartTransportTest
+ITM-019,Alquimia,Frasco con Agua,Java 1.21,wiki-comunitaria,Base para destilación de todas las pociones,opencraft:potion,F12,Parcial,AlchemyPotionsAndEffectsTest
+ITM-020,Alquimia,Polvo ígneo,Java 1.21,wiki-comunitaria,Combustible de destilación y crafteo de ojos del Confín,opencraft:ember_powder,F12,Completado,AlchemyPotionsAndEffectsTest
+ITM-021,Progresión,Perla del Confín,Java 1.21,wiki-comunitaria,Proyectil de teletransporte con 5 de daño de caída,opencraft:rim_pearl,F12,Completado,DimensionsPortalsAndStorageTest
+ITM-022,Progresión,Ojo del Confín,Java 1.21,wiki-comunitaria,Localizador y activador del portal dimensional del Confín,opencraft:rim_eye,F12,Completado,DimensionsPortalsAndStorageTest
+ITM-023,Progresión,Élitros (Elytra),Java 1.21,wiki-comunitaria,Alas de planeo con propulsión por cohetes de fuegos artificiales,opencraft:elytra,F12,Completado,EnchantingAnvilAndProgressionGraphTest
+ITM-024,Progresión,Estrella del Abismo,Java 1.21,wiki-comunitaria,Recompensa inmune al fuego del Hidra ósea para fabricar el Faro,opencraft:abyss_star,F12,Completado,BossesDragonWitherAndBeaconTest
+ITM-025,Progresión,Libro Encantado,Java 1.21,wiki-comunitaria,Almacena encantamientos para aplicar en el yunque,opencraft:enchanted_book,F12,Completado,EnchantingAnvilAndProgressionGraphTest
+ITM-026,Miscelánea,Tinte Rojo,Java 1.21,wiki-comunitaria,"Pigmento para teñir lanas, armaduras y collares de lobos",opencraft:red_dye,F15,Completado,test_trial_chambers_and_content_1_21
+ITM-027,Miscelánea,Tinte Azul,Java 1.21,wiki-comunitaria,Pigmento azul de lapislázuli para artesanías y tintado,opencraft:blue_dye,F15,Completado,test_trial_chambers_and_content_1_21
+ITM-028,Miscelánea,Libro y Pluma,Java 1.21,wiki-comunitaria,Libro con páginas editables persistidas por jugador,opencraft:writable_book,F15,Completado,test_trial_chambers_and_content_1_21
+ITM-029,Miscelánea,Mapa Vacío,Java 1.21,wiki-comunitaria,Herramienta de cartografía para registrar chunks explorados,opencraft:map,F15,Completado,test_trial_chambers_and_content_1_21
+ITM-030,Arqueología,Pincel (Brush),Java 1.21,wiki-comunitaria,Herramienta para desenterrar restos en arena sospechosa,opencraft:brush,F15,Completado,test_trial_chambers_and_content_1_21
+MOB-001,Fauna,Vaca,Java 1.21,wiki-comunitaria,"Criatura pasiva que da cuero, ternera y leche",opencraft:cow,F08,Completado,MobArchetypesAndPersistenceTest
+MOB-002,Fauna,Oveja,Java 1.21,wiki-comunitaria,Criatura pasiva que da lana al esquilar y pastar hierba,opencraft:sheep,F10,Completado,AgricultureGrowthAndRenewableCycleTest
+MOB-003,Fauna,Cerdo,Java 1.21,wiki-comunitaria,Criatura pasiva atraída por zanahorias y montable con montura,opencraft:pig,F10,Completado,AgricultureGrowthAndRenewableCycleTest
+MOB-004,Fauna,Gallina,Java 1.21,wiki-comunitaria,Criatura pasiva que pone huevos periódicos y da plumas,opencraft:chicken,F10,Completado,AgricultureGrowthAndRenewableCycleTest
+MOB-005,Fauna,Lobo,Java 1.21,wiki-comunitaria,Canino domesticable con huesos con postura sentada y ataque fiel,opencraft:wolf,F10,Completado,VillagerEconomyAndConcurrentTradeTest
+MOB-006,Civilización,Aldeano,Java 1.21,wiki-comunitaria,"PNJ con profesiones, comercio concurrente y reposición de stock",opencraft:villager,F10,Completado,VillagerEconomyAndConcurrentTradeTest
+MOB-007,Monstruos,Zombi,Java 1.21,wiki-comunitaria,Monstruo hostil que persigue aldeanos y arde con luz solar,opencraft:zombie,F08,Completado,MobSpawningAndLightRulesTest
+MOB-008,Monstruos,Esqueleto,Java 1.21,wiki-comunitaria,Arquero hostil a distancia que arde al amanecer,opencraft:skeleton,F08,Completado,CombatDamageAndLootTransactionTest
+MOB-009,Monstruos,Acechador,Java 1.21,wiki-comunitaria,Monstruo sigiloso que detona en 30 ticks cerca del jugador,opencraft:lurker,F08,Completado,CombatDamageAndLootTransactionTest
+MOB-010,Monstruos 1.21,Torbellino (Brisa),Java 1.21,notas-oficiales,Criatura hostil de las Cámaras de Pruebas que salta y lanza proyectiles de viento,opencraft:whirl,F15,Completado,test_trial_chambers_and_content_1_21
+MOB-011,Monstruos 1.21,Esqueleto del pantano (Empantanado),Java 1.21,notas-oficiales,Esqueleto de pantanos y cámaras cubierto de musgo que dispara flechas de veneno,opencraft:swamp_skeleton,F15,Completado,test_trial_chambers_and_content_1_21
+MOB-012,Jefes,Dragón del Confín,Java 1.21,wiki-comunitaria,Jefe final del Confín regenerado por cristales con 200 HP,opencraft:rim_dragon,F12,Completado,BossesDragonWitherAndBeaconTest
+MOB-013,Jefes,Hidra ósea,Java 1.21,wiki-comunitaria,Jefe de 300 HP con escudo contra proyectiles a media vida,opencraft:bone_hydra,F12,Completado,BossesDragonWitherAndBeaconTest
+STR-001,Estructuras,Aldea de Llanura,Java 1.21,wiki-comunitaria,"Asentamiento multi-chunk con pozo, granjas y casas con aldeanos",opencraft:village,F10,Completado,StructuresAndMultiChunkDeterminismTest
+STR-002,Estructuras,Mazmorra,Java 1.21,wiki-comunitaria,Sala subterránea de adoquín con spawner de monstruos y cofre,opencraft:dungeon,F10,Completado,StructuresAndMultiChunkDeterminismTest
+STR-003,Estructuras,Ruina,Java 1.21,wiki-comunitaria,Restos arqueológicos con botín determinista,opencraft:ruin,F10,Completado,StructuresAndMultiChunkDeterminismTest
+STR-004,Estructuras 1.21,Cámaras de Pruebas (Trial Chambers),Java 1.21,notas-oficiales,Complejo subterráneo de cobre y toba con Trial Spawners y Vaults,opencraft:trial_chambers,F15,Completado,test_trial_chambers_and_content_1_21
+ENC-001,Encantamientos,Afilado (Sharpness),Java 1.21,wiki-comunitaria,Aumenta el daño cuerpo a cuerpo de armas en 0.5 por nivel,opencraft:sharpness,F12,Completado,EnchantingAnvilAndProgressionGraphTest
+ENC-002,Encantamientos,Protección (Protection),Java 1.21,wiki-comunitaria,Reduce el daño recibido de la mayoría de fuentes en 4% por nivel,opencraft:protection,F12,Completado,EnchantingAnvilAndProgressionGraphTest
+ENC-003,Encantamientos,Eficiencia (Efficiency),Java 1.21,wiki-comunitaria,Acelera la velocidad de minado de la herramienta,opencraft:efficiency,F12,Completado,EnchantingAnvilAndProgressionGraphTest
+ENC-004,Encantamientos,Irrompibilidad (Unbreaking),Java 1.21,wiki-comunitaria,Otorga probabilidad de no consumir durabilidad al usar el ítem,opencraft:unbreaking,F12,Completado,EnchantingAnvilAndProgressionGraphTest
+ENC-005,Encantamientos 1.21,Densidad (Density),Java 1.21,notas-oficiales,Aumenta el daño por bloque caído de la Maza (+0.5 por nivel y bloque),opencraft:density,F15,Completado,test_trial_chambers_and_content_1_21
+ENC-006,Encantamientos 1.21,Ruptura (Breach),Java 1.21,notas-oficiales,Reduce un 15% por nivel la armadura efectiva del objetivo atacado con Maza,opencraft:breach,F15,Completado,test_trial_chambers_and_content_1_21
+ENC-007,Encantamientos 1.21,Ráfaga de Viento (Wind Burst),Java 1.21,notas-oficiales,Lanza al atacante hacia arriba tras asestar un golpe descendente con la Maza,opencraft:wind_burst,F15,Completado,test_trial_chambers_and_content_1_21
+CMD-001,Comandos,Gamemode,Java 1.21,wiki-comunitaria,Alterna modos Survival/Creative/Adventure/Spectator,opencraft:/gamemode,F13,Completado,CommandParserAndSelectorsTest
+CMD-002,Comandos,Teleport,Java 1.21,wiki-comunitaria,Teletransporta entidades a coordenadas o destinos,opencraft:/tp,F13,Completado,CommandParserAndSelectorsTest
+CMD-003,Comandos,Give,Java 1.21,wiki-comunitaria,Inserta ítems en el inventario de selectores compatibles,opencraft:/give,F13,Completado,CommandParserAndSelectorsTest
+CMD-004,Comandos,Setblock,Java 1.21,wiki-comunitaria,Modifica bloques con preservación de estados y entidades de bloque,opencraft:/setblock,F13,Completado,CommandParserAndSelectorsTest
+CMD-005,Comandos,Fill,Java 1.21,wiki-comunitaria,Rellena regiones rectangulares respetando límite de volumen seguro,opencraft:/fill,F13,Completado,CommandBlocksAndFunctionBudgetTest
+SYS-001,Persistencia,Transacciones Atómicas,Java 1.21,wiki-comunitaria,Guardado con journal y escritura temporal atómica libre de corrupción,opencraft:storage_journal,F02,Completado,TransactionRecoveryTest
+SYS-002,Multijugador,Servidor Dedicado,Java 1.21,wiki-comunitaria,Protocolo binario OCNT v100 con simulación autoritativa a 20 TPS,opencraft:server_engine,F09,Completado,AuthoritativeActionsAndReachTest
+SYS-003,Plataformas,Soporte Móvil y Táctil,Bedrock,wiki-comunitaria,"Controles multitáctiles con safe area, joystick y resistencia a interrupciones",opencraft:touch_controls,F14,Completado,TouchControllerAndSafeAreaTest
+SYS-004,Accesibilidad,Audio Espacial y Subtítulos,Java 1.21,wiki-comunitaria,"Atenuación 3D, paneo estéreo y subtítulos direccionales visuales",opencraft:spatial_audio,F14,Completado,SpatialAudioAndSubtitlesTest
+SYS-005,Calidad,Presupuesto de 20 TPS,Java 1.21,wiki-comunitaria,Simulación determinista constante con tick $\le 50.0\text{ ms}$,opencraft:tick_budget,F14,Completado,BenchmarkAndQualityProfilesTest

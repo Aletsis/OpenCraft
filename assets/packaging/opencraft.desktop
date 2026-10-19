@@ -1,0 +1,20 @@
+[Desktop Entry]
+Name=OpenCraft
+GenericName=Juego sandbox de bloques
+GenericName[en]=Voxel Sandbox Game
+Comment=Explora, construye y sobrevive en un mundo infinito de bloques
+Comment[en]=Explore, build and survive in an infinite block world
+Exec=opencraft
+Icon=opencraft
+Terminal=false
+Type=Application
+Categories=Game;Simulation;
+Keywords=voxel;sandbox;bloques;construir;supervivencia;
+StartupNotify=true
+X-Purism-FormFactor=Workstation;Mobile;
+Actions=NewWorld;
+
+[Desktop Action NewWorld]
+Name=Crear un mundo nuevo
+Name[en]=Create a new world
+Exec=opencraft --create "Nuevo mundo"
